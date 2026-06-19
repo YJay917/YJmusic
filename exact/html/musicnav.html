@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>音乐播放条（底部导航）</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 引入外部样式 -->
+  <link rel="stylesheet" href="../css/musicnav.css">
+</head>
+<body style="padding-bottom: 60px;"> <!-- 底部预留播放条高度 -->
+
+  <!-- 页面内容示例 -->
+  <div style="padding: 20px;">
+    <h1 style="font-size: 24px; margin-bottom: 16px;">页面内容区域</h1>
+    <p style="color: #666; line-height: 1.6;">滚动页面时，底部的音乐播放条会始终固定显示，样式与交互完全还原目标效果。</p>
+  </div>
+
+  <!-- 底部音乐播放条 - 1:1还原核心区域 -->
+  <div class="player-bar">
+    <!-- 左侧：操作图标 + 歌曲标题 -->
+    <div class="player-left">
+      <div class="player-icons">
+        <span class="heart-icon" id="heartIcon" title="收藏">♥</span>
+      </div>
+      <div class="player-title">
+        Letter That Writing in the Wind (钢琴氛围版) - Vio1et5210
+      </div>
+    </div>
+
+    <!-- 中间：进度条 + 时间显示 -->
+    <div class="player-progress">
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="time-text">
+        <span id="currentTime">00:00</span>
+        <span id="totalTime">04:07</span>
+      </div>
+    </div>
+
+    <!-- 右侧：播放控制按钮 -->
+    <div class="player-controls">
+      <i class="fa fa-step-backward control-btn" style="margin-right: 3px;" title="上一首"></i>
+      <div class="play-btn" id="playBtn" style="padding-left: 2px;" title="播放音乐">
+        <i class="fa fa-play"></i>
+      </div>
+      <i class="fa fa-step-forward control-btn" style="margin-left: 7px;" title="下一首"></i>
+      <div class="volume-container">
+        <i class="fa fa-volume-up control-btn" id="volumeBtn" title="音量"></i>
+        <div class="volume-panel" id="volumePanel">
+          <div class="volume-slider">
+            <div class="volume-progress" id="volumeProgress"></div>
+            <div class="volume-dot" id="volumeDot"></div>
+          </div>
+        </div>
+      </div>
+      <i class="fa fa-refresh control-btn" id="playModeBtn" title="列表循环"></i>
+      <i class="fa fa-list control-btn" title="播放列表"></i>
+    </div>
+
+    <!-- 最右侧：音质标签 + 功能图标 -->
+    <div class="player-right">
+      <span class="hq-tag">HQ</span>
+      <i class="fa fa-angle-double-right" id="hidePlayerBtn" style="cursor: pointer; font-size: 20px;" title="隐藏"></i>
+    </div>
+  </div>
+
+  <!-- 提示弹窗 -->
+  <div class="toast" id="toast"></div>
+
+  <!-- 还原播放条按钮 -->
+  <div class="show-player-btn" id="showPlayerBtn" title="显示播放条">
+    <i class="fa fa-music"></i>
+  </div>
+
+  <!-- 引入外部脚本 -->
+  <script src="../js/musicnav.js"></script>
+</body>
+</html>
