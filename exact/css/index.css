@@ -231,7 +231,7 @@ img {
     padding: 0 20px;
     transition: background 0.3s ease;
     transform: translateZ(0);
-    min-width: 1200px;
+    min-width: 0; /* mobile-friendly */
 }
 
 /* 导航栏在滚动时的状态 */
@@ -5300,3 +5300,510 @@ body.music-playing #playerShowBtn {
             backdrop-filter: blur(10px) saturate(150%) !important;
             -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
         }
+
+/* ================================================================
+   📱 移动端响应式适配 (Mobile Responsive)
+   ================================================================ */
+
+/* --- 平板端 (≤1024px) --- */
+@media screen and (max-width: 1024px) {
+    body {
+        padding-top: 60px;
+        padding-bottom: 100px;
+        background-size: 180% auto;
+    }
+
+    .nav {
+        min-width: 0 !important;
+        height: 56px;
+        padding: 0 12px;
+    }
+
+    .nav-wrapper {
+        padding: 0 12px;
+        gap: 8px;
+    }
+
+    .logo {
+        font-size: 22px;
+        margin-right: 8px;
+        padding: 0 6px;
+    }
+
+    .nav-list {
+        gap: 0;
+    }
+
+    .nav-list li a.nav-item {
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+
+    .search-box {
+        width: 180px;
+        margin-right: 8px;
+    }
+
+    .search-input {
+        width: 140px;
+        font-size: 12px;
+    }
+
+    /* 轮播图区域 */
+    .hero-section {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding: 0 16px;
+        margin-top: 20px;
+    }
+
+    .carousel-container {
+        width: 100% !important;
+        max-width: 600px;
+        height: 340px;
+    }
+
+    /* 内容区卡片 */
+    .card {
+        width: calc(33.33% - 14px) !important;
+    }
+
+    .home-list .card {
+        width: calc(50% - 10px) !important;
+    }
+
+    .main-container {
+        padding: 0 12px;
+    }
+
+    .section-title h3 {
+        font-size: 22px;
+    }
+
+    /* 播放条 */
+    .player-bar {
+        width: calc(100% - 24px) !important;
+        max-width: 100%;
+        left: 12px;
+        right: 12px;
+        transform: none;
+        border-radius: 16px;
+        height: 60px;
+        padding: 6px 16px;
+    }
+
+    .player-left {
+        width: 180px;
+    }
+
+    .player-title {
+        font-size: 13px;
+        margin-left: 0;
+        max-width: 120px;
+    }
+
+    .player-progress {
+        width: auto;
+        flex: 1;
+        margin: 0 12px;
+    }
+
+    .side-action-buttons {
+        right: 12px;
+        bottom: 90px;
+        gap: 8px;
+    }
+
+    .side-btn {
+        width: 42px;
+        height: 42px;
+        font-size: 1em;
+    }
+}
+
+/* --- 手机端 (≤768px) --- */
+@media screen and (max-width: 768px) {
+    body {
+        padding-top: 52px;
+        padding-bottom: 90px;
+        background-size: 220% auto;
+    }
+
+    /* 导航栏：紧凑布局 */
+    .nav {
+        height: 48px;
+        padding: 0 8px;
+    }
+
+    .nav-wrapper {
+        padding: 0 8px;
+        gap: 4px;
+    }
+
+    .logo {
+        font-size: 18px;
+        margin-right: 4px;
+        padding: 0 4px;
+    }
+
+    /* 导航菜单：横向可滚动 */
+    .nav-list {
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        mask-image: linear-gradient(to right, transparent 0%, black 8px, black calc(100% - 16px), transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8px, black calc(100% - 16px), transparent 100%);
+        padding: 0 4px;
+    }
+
+    .nav-list::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav-list li a.nav-item {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 14px;
+    }
+
+    .nav-list li::before,
+    .nav-list li:last-child::after {
+        display: none;
+    }
+
+    /* 搜索框缩小 */
+    .search-box {
+        width: 120px;
+        margin-right: 4px;
+    }
+
+    .search-input {
+        width: 90px;
+        height: 32px;
+        font-size: 11px;
+        padding: 0 10px;
+        border-top-left-radius: 16px;
+        border-bottom-left-radius: 16px;
+    }
+
+    .search-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+
+    .login-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 12px;
+    }
+
+    .user-name {
+        display: none;
+    }
+
+    /* 轮播图 */
+    .hero-section {
+        flex-direction: column;
+        gap: 16px;
+        padding: 0 8px;
+        margin-top: 16px;
+    }
+
+    .carousel-container {
+        width: 100% !important;
+        max-width: 100%;
+        height: 220px;
+        padding: 6px;
+        border-radius: 16px;
+    }
+
+    .carousel-3d-item {
+        border-radius: 12px;
+    }
+
+    .carousel-3d-control {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .banner-player {
+        right: 16px;
+        top: 8px;
+        font-size: 11px;
+    }
+
+    /* 内容区 */
+    .content {
+        padding: 24px 0;
+    }
+
+    .main-container {
+        padding: 0 8px;
+    }
+
+    .section-title {
+        margin-bottom: 30px;
+    }
+
+    .section-title h3 {
+        font-size: 18px;
+        letter-spacing: 1px;
+    }
+
+    .relax-subtitle {
+        font-size: 12px;
+    }
+
+    /* 卡片：两列 */
+    .card-list {
+        gap: 12px;
+    }
+
+    .card {
+        width: calc(50% - 6px) !important;
+    }
+
+    .home-list .card {
+        width: calc(50% - 6px) !important;
+    }
+
+    .card img {
+        height: 120px;
+    }
+
+    .card-title {
+        font-size: 12px;
+    }
+
+    .card-author, .card-desc {
+        font-size: 10px;
+    }
+
+    /* 分类/歌手标签 */
+    .category-list, .singer-list {
+        gap: 8px;
+    }
+
+    .category-item, .singer-item {
+        padding: 6px 10px;
+        font-size: 11px;
+        border-radius: 14px;
+    }
+
+    /* 表格：横向滚动 */
+    .remen-table-wrap,
+    .hot-table-wrap,
+    .latest-table-wrap,
+    table {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        display: block;
+    }
+
+    /* 播放条：紧凑 */
+    .player-bar {
+        width: calc(100% - 16px) !important;
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
+        height: 52px;
+        padding: 4px 10px;
+        border-radius: 14px;
+    }
+
+    .player-left {
+        width: 120px;
+        gap: 6px;
+    }
+
+    .player-icons {
+        gap: 6px;
+        font-size: 12px;
+    }
+
+    .player-title {
+        font-size: 11px;
+        max-width: 80px;
+        margin-left: 0;
+    }
+
+    .player-progress {
+        flex: 1;
+        margin: 0 8px;
+    }
+
+    .player-progress-bar {
+        top: 10px;
+        margin-bottom: 10px;
+        height: 3px;
+    }
+
+    .player-controls {
+        width: 100px;
+        gap: 6px;
+    }
+
+    .player-right {
+        display: none;
+    }
+
+    /* 侧边按钮 */
+    .side-action-buttons {
+        right: 8px;
+        bottom: 80px;
+        gap: 6px;
+    }
+
+    .side-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9em;
+    }
+
+    /* 弹窗全屏 */
+    .modal-container,
+    .playlist-modal-container,
+    .settings-modal-container,
+    .password-modal-container,
+    .large-modal-container,
+    .album-detail-container {
+        width: calc(100vw - 16px) !important;
+        max-width: 100vw !important;
+        height: auto !important;
+        max-height: 85vh !important;
+        margin-top: 0 !important;
+        padding: 16px !important;
+        border-radius: 16px !important;
+    }
+
+    .small-modal-container {
+        width: calc(100vw - 40px) !important;
+    }
+
+    /* 加载界面 */
+    .loader-content {
+        width: 90vw;
+        padding: 24px;
+    }
+
+    .loader-content h2 {
+        font-size: 18px;
+    }
+
+    /* Toast 通知 */
+    .player-toast {
+        left: 10px;
+        right: 10px;
+        font-size: 12px;
+        padding: 10px 16px;
+    }
+}
+
+/* --- 小屏手机 (≤480px) --- */
+@media screen and (max-width: 480px) {
+    body {
+        padding-top: 46px;
+        padding-bottom: 80px;
+        background-size: 280% auto;
+    }
+
+    .nav {
+        height: 44px;
+        padding: 0 4px;
+    }
+
+    .logo {
+        font-size: 16px;
+    }
+
+    .nav-list li a.nav-item {
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+
+    .search-box {
+        width: 90px;
+    }
+
+    .search-input {
+        width: 60px;
+        height: 28px;
+        font-size: 10px;
+    }
+
+    .search-btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    .login-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 10px;
+    }
+
+    /* 轮播图更小 */
+    .carousel-container {
+        height: 180px;
+    }
+
+    /* 卡片：可单列 */
+    .card {
+        width: 100% !important;
+    }
+
+    .home-list .card {
+        width: calc(50% - 6px) !important;
+    }
+
+    .card img {
+        height: 100px;
+    }
+
+    /* 播放条更紧凑 */
+    .player-bar {
+        height: 46px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        bottom: 6px;
+    }
+
+    .player-left {
+        width: 90px;
+    }
+
+    .player-title {
+        font-size: 10px;
+        max-width: 60px;
+    }
+
+    .player-controls {
+        width: 80px;
+        gap: 4px;
+    }
+
+    .player-controls i {
+        font-size: 11px;
+    }
+
+    .side-action-buttons {
+        right: 4px;
+        bottom: 70px;
+        gap: 4px;
+    }
+
+    .side-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8em;
+    }
+
+    .section-title h3 {
+        font-size: 16px;
+    }
+}
