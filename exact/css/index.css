@@ -3923,14 +3923,9 @@ body.music-playing #playerShowBtn {
         .admin-btn-gray:hover {
             background: rgba(255, 255, 255, 0.14) !important;
             border-color: rgba(255, 255, 255, 0.35) !important;
+            color: #fff !important;
             box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
             transform: translateY(-2px);
-        }
-        }
-        .admin-btn-gray:hover {
-            background: rgba(255, 255, 255, 0.14) !important;
-            border-color: rgba(255, 255, 255, 0.3) !important;
-            color: #fff !important;
         }
 
         /* 右侧账号操作：按钮上下排列 */
