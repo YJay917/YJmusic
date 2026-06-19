@@ -5305,505 +5305,574 @@ body.music-playing #playerShowBtn {
    📱 移动端响应式适配 (Mobile Responsive)
    ================================================================ */
 
-/* --- 平板端 (≤1024px) --- */
-@media screen and (max-width: 1024px) {
-    body {
-        padding-top: 60px;
-        padding-bottom: 100px;
-        background-size: 180% auto;
-    }
-
-    .nav {
-        min-width: 0 !important;
-        height: 56px;
-        padding: 0 12px;
-    }
-
-    .nav-wrapper {
-        padding: 0 12px;
-        gap: 8px;
-    }
-
-    .logo {
-        font-size: 22px;
-        margin-right: 8px;
-        padding: 0 6px;
-    }
-
-    .nav-list {
-        gap: 0;
-    }
-
-    .nav-list li a.nav-item {
-        font-size: 12px;
-        padding: 6px 8px;
-    }
-
-    .search-box {
-        width: 180px;
-        margin-right: 8px;
-    }
-
-    .search-input {
-        width: 140px;
-        font-size: 12px;
-    }
-
-    /* 轮播图区域 */
-    .hero-section {
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-        padding: 0 16px;
-        margin-top: 20px;
-    }
-
-    .carousel-container {
-        width: 100% !important;
-        max-width: 600px;
-        height: 340px;
-    }
-
-    /* 内容区卡片 */
-    .card {
-        width: calc(33.33% - 14px) !important;
-    }
-
-    .home-list .card {
-        width: calc(50% - 10px) !important;
-    }
-
-    .main-container {
-        padding: 0 12px;
-    }
-
-    .section-title h3 {
-        font-size: 22px;
-    }
-
-    /* 播放条 */
-    .player-bar {
-        width: calc(100% - 24px) !important;
-        max-width: 100%;
-        left: 12px;
-        right: 12px;
-        transform: none;
-        border-radius: 16px;
-        height: 60px;
-        padding: 6px 16px;
-    }
-
-    .player-left {
-        width: 180px;
-    }
-
-    .player-title {
-        font-size: 13px;
-        margin-left: 0;
-        max-width: 120px;
-    }
-
-    .player-progress {
-        width: auto;
-        flex: 1;
-        margin: 0 12px;
-    }
-
-    .side-action-buttons {
-        right: 12px;
-        bottom: 90px;
-        gap: 8px;
-    }
-
-    .side-btn {
-        width: 42px;
-        height: 42px;
-        font-size: 1em;
-    }
-}
-
-/* --- 手机端 (≤768px) --- */
+/* ========== 📱 手机端 (≤768px) ========== */
 @media screen and (max-width: 768px) {
+
+    /* --- 全局 --- */
     body {
-        padding-top: 52px;
-        padding-bottom: 90px;
-        background-size: 220% auto;
+        padding-top: 50px;
+        padding-bottom: 150px; /* 给底部导航栏 + 播放条留空间 */
+        background-size: 250% auto;
+        background-position: center 50px;
+        background-attachment: fixed;
     }
 
-    /* 导航栏：紧凑布局 */
+    /* --- 顶部导航栏 (流线型毛玻璃) --- */
     .nav {
-        height: 48px;
-        padding: 0 8px;
+        height: 50px;
+        padding: 0 10px;
+        min-width: 0 !important;
+        background: rgba(18, 18, 18, 0.85) !important;
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav.scrolled {
+        background: rgba(18, 18, 18, 0.92) !important;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
     }
 
     .nav-wrapper {
-        padding: 0 8px;
-        gap: 4px;
+        padding: 0 6px;
+        gap: 6px;
+        max-width: 100%;
     }
 
     .logo {
-        font-size: 18px;
+        font-size: 20px;
         margin-right: 4px;
-        padding: 0 4px;
+        padding: 0 6px;
+        flex-shrink: 0;
     }
 
-    /* 导航菜单：横向可滚动 */
+    /* 隐藏竖线分隔符 */
+    .nav-list li::before,
+    .nav-list li:last-child::after {
+        display: none;
+    }
+
+    /* 导航菜单：流畅横向滑动 + 自动吸附 */
     .nav-list {
         overflow-x: auto;
         overflow-y: hidden;
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
+        scroll-behavior: smooth;
+        scroll-snap-type: x proximity;
+        flex: 1;
+        margin: 0 4px;
         mask-image: linear-gradient(to right, transparent 0%, black 8px, black calc(100% - 16px), transparent 100%);
         -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8px, black calc(100% - 16px), transparent 100%);
-        padding: 0 4px;
     }
 
-    .nav-list::-webkit-scrollbar {
-        display: none;
-    }
+    .nav-list::-webkit-scrollbar { display: none; }
 
     .nav-list li a.nav-item {
-        font-size: 11px;
-        padding: 4px 8px;
-        border-radius: 14px;
+        font-size: 13px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 500;
+        transition: all 0.25s ease;
     }
 
-    .nav-list li::before,
-    .nav-list li:last-child::after {
-        display: none;
+    .nav-list li a.nav-item.active {
+        background: rgba(228, 57, 60, 0.2);
+        color: #e4393c;
+        font-weight: 600;
+        box-shadow: 0 0 12px rgba(228, 57, 60, 0.15);
     }
 
-    /* 搜索框缩小 */
+    /* 隐藏桌面端滑动指示器 */
+    .nav-indicator { display: none !important; }
+
+    /* 搜索区域折叠为图标 */
     .search-box {
-        width: 120px;
-        margin-right: 4px;
+        width: auto;
+        margin-right: 2px;
+        flex-shrink: 0;
     }
 
     .search-input {
-        width: 90px;
-        height: 32px;
-        font-size: 11px;
-        padding: 0 10px;
-        border-top-left-radius: 16px;
-        border-bottom-left-radius: 16px;
+        width: 0;
+        height: 36px;
+        padding: 0;
+        border: none;
+        background: transparent;
+        font-size: 13px;
+        transition: all 0.3s ease;
+        opacity: 0;
+    }
+
+    .search-box:focus-within .search-input,
+    .search-box.search-open .search-input {
+        width: 140px;
+        padding: 0 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-right: none;
+        border-radius: 18px 0 0 18px;
+        background: rgba(255, 255, 255, 0.08);
+        opacity: 1;
     }
 
     .search-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 12px;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s ease;
     }
 
+    .search-box:focus-within .search-btn,
+    .search-box.search-open .search-btn {
+        border-radius: 0 18px 18px 0;
+        background: rgba(228, 57, 60, 0.15);
+    }
+
+    /* 登录按钮缩小 */
     .login-btn {
         width: 36px;
         height: 36px;
-        font-size: 12px;
+        min-width: 36px;
+        font-size: 13px;
+        flex-shrink: 0;
+        border-radius: 50%;
     }
 
-    .user-name {
-        display: none;
-    }
+    .user-name { display: none; }
 
-    /* 轮播图 */
+    /* --- 轮播图区 --- */
     .hero-section {
         flex-direction: column;
-        gap: 16px;
-        padding: 0 8px;
-        margin-top: 16px;
+        gap: 12px;
+        padding: 0 10px;
+        margin-top: 12px;
     }
 
     .carousel-container {
         width: 100% !important;
-        max-width: 100%;
-        height: 220px;
-        padding: 6px;
-        border-radius: 16px;
-    }
-
-    .carousel-3d-item {
-        border-radius: 12px;
+        max-width: 100% !important;
+        height: 200px;
+        padding: 5px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .carousel-3d-control {
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+    }
+
+    .carousel-3d-control.prev { left: 6px; }
+    .carousel-3d-control.next { right: 6px; }
+
+    .carousel-3d-indicators {
+        bottom: 8px;
+        gap: 5px;
+    }
+
+    .carousel-3d-indicators span {
+        width: 6px;
+        height: 6px;
+        border-radius: 3px;
     }
 
     .banner-player {
-        right: 16px;
+        right: 14px;
         top: 8px;
         font-size: 11px;
     }
 
-    /* 内容区 */
+    /* --- 内容区域 --- */
     .content {
-        padding: 24px 0;
+        padding: 20px 0;
     }
 
     .main-container {
-        padding: 0 8px;
+        padding: 0 10px;
+        max-width: 100%;
     }
 
     .section-title {
-        margin-bottom: 30px;
+        margin-bottom: 24px;
+        align-items: center;
     }
 
     .section-title h3 {
-        font-size: 18px;
+        font-size: 20px;
         letter-spacing: 1px;
     }
 
     .relax-subtitle {
         font-size: 12px;
+        display: none;
     }
 
-    /* 卡片：两列 */
+    /* 卡片两列网格 */
     .card-list {
-        gap: 12px;
+        gap: 10px;
     }
 
     .card {
-        width: calc(50% - 6px) !important;
+        width: calc(50% - 5px) !important;
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.04);
+        transition: transform 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .card:active {
+        transform: scale(0.97);
     }
 
     .home-list .card {
-        width: calc(50% - 6px) !important;
+        width: calc(50% - 5px) !important;
     }
 
     .card img {
-        height: 120px;
+        height: 110px;
+        object-fit: cover;
     }
 
     .card-title {
-        font-size: 12px;
+        font-size: 13px;
+        padding: 6px 8px 0;
     }
 
     .card-author, .card-desc {
-        font-size: 10px;
+        font-size: 11px;
+        padding: 0 8px 8px;
     }
 
-    /* 分类/歌手标签 */
+    /* 标签流式换行 */
     .category-list, .singer-list {
         gap: 8px;
+        flex-wrap: wrap;
     }
 
     .category-item, .singer-item {
-        padding: 6px 10px;
-        font-size: 11px;
-        border-radius: 14px;
+        padding: 8px 14px;
+        font-size: 13px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        -webkit-tap-highlight-color: transparent;
     }
 
-    /* 表格：横向滚动 */
+    .category-item:active, .singer-item:active {
+        background: rgba(228, 57, 60, 0.15);
+        transform: scale(0.96);
+    }
+
+    /* 表格区域横向滚动 + 优化滚动条 */
     .remen-table-wrap,
     .hot-table-wrap,
-    .latest-table-wrap,
-    table {
+    .latest-table-wrap {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        display: block;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255,255,255,0.1) transparent;
+        margin: 0 -10px;
+        padding: 0 10px;
     }
 
-    /* 播放条：紧凑 */
+    /* --- 播放条：悬浮卡片式 --- */
     .player-bar {
-        width: calc(100% - 16px) !important;
-        left: 8px;
-        right: 8px;
-        bottom: 8px;
-        height: 52px;
-        padding: 4px 10px;
-        border-radius: 14px;
+        width: calc(100% - 20px) !important;
+        max-width: 100% !important;
+        left: 10px !important;
+        right: 10px !important;
+        bottom: 80px !important; /* 底部导航栏上方 */
+        transform: none !important;
+        height: 56px;
+        padding: 6px 14px;
+        border-radius: 18px;
+        background: rgba(30, 30, 30, 0.92) !important;
+        backdrop-filter: blur(24px) saturate(200%);
+        -webkit-backdrop-filter: blur(24px) saturate(200%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+        z-index: 12001;
     }
 
     .player-left {
-        width: 120px;
-        gap: 6px;
+        width: auto;
+        flex: 0 1 auto;
+        min-width: 0;
     }
 
-    .player-icons {
-        gap: 6px;
-        font-size: 12px;
-    }
+    .player-icons { gap: 8px; font-size: 13px; }
 
     .player-title {
-        font-size: 11px;
-        max-width: 80px;
+        font-size: 12px;
+        max-width: 100px;
         margin-left: 0;
+        font-weight: 500;
     }
 
     .player-progress {
         flex: 1;
-        margin: 0 8px;
+        margin: 0 10px;
+        min-width: 0;
     }
 
     .player-progress-bar {
-        top: 10px;
-        margin-bottom: 10px;
-        height: 3px;
+        top: 8px;
+        margin-bottom: 8px;
+        height: 4px;
+        border-radius: 2px;
+    }
+
+    /* 时间文字 */
+    .time-text {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.5);
     }
 
     .player-controls {
-        width: 100px;
-        gap: 6px;
+        width: auto;
+        gap: 8px;
+        flex-shrink: 0;
     }
 
-    .player-right {
-        display: none;
+    .play-btn-circle {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px;
+        border-radius: 50%;
+        background: #e4393c !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        box-shadow: 0 4px 16px rgba(228, 57, 60, 0.4);
+        transition: transform 0.15s ease;
     }
 
-    /* 侧边按钮 */
+    .play-btn-circle:active {
+        transform: scale(0.9);
+    }
+
+    .player-controls i.control-btn {
+        font-size: 14px;
+        padding: 4px;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .player-right { display: none !important; }
+
+    /* --- 侧边按钮 → 移到左下角 --- */
     .side-action-buttons {
-        right: 8px;
-        bottom: 80px;
-        gap: 6px;
+        right: auto;
+        left: 10px;
+        bottom: 148px;
+        flex-direction: row;
+        gap: 8px;
+        z-index: 11999;
     }
 
     .side-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 0.9em;
+        width: 38px;
+        height: 38px;
+        font-size: 0.95em;
+        border-radius: 50%;
+        background: rgba(20, 20, 20, 0.85);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+        -webkit-tap-highlight-color: transparent;
     }
 
-    /* 弹窗全屏 */
+    .side-btn:active {
+        transform: scale(0.9);
+    }
+
+    /* --- 📱 底部导航栏 --- */
+    .mobile-bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        padding: 6px 8px env(safe-area-inset-bottom, 8px);
+        background: rgba(22, 22, 22, 0.94);
+        backdrop-filter: blur(24px) saturate(200%);
+        -webkit-backdrop-filter: blur(24px) saturate(200%);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.4);
+        z-index: 13000;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        padding: 4px 10px;
+        min-width: 56px;
+        min-height: 48px;
+        color: rgba(255, 255, 255, 0.5);
+        text-decoration: none;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-nav-item i {
+        font-size: 20px;
+        transition: all 0.2s ease;
+    }
+
+    .mobile-nav-item span {
+        font-size: 10px;
+        font-weight: 500;
+    }
+
+    .mobile-nav-item.active {
+        color: #e4393c;
+    }
+
+    .mobile-nav-item.active i {
+        transform: translateY(-2px);
+        filter: drop-shadow(0 2px 6px rgba(228, 57, 60, 0.4));
+    }
+
+    .mobile-nav-item:active {
+        background: rgba(255, 255, 255, 0.06);
+        transform: scale(0.92);
+    }
+
+    /* --- 弹窗全屏 --- */
     .modal-container,
     .playlist-modal-container,
     .settings-modal-container,
     .password-modal-container,
     .large-modal-container,
     .album-detail-container {
-        width: calc(100vw - 16px) !important;
+        width: calc(100vw - 20px) !important;
         max-width: 100vw !important;
         height: auto !important;
-        max-height: 85vh !important;
+        max-height: 80vh !important;
         margin-top: 0 !important;
-        padding: 16px !important;
-        border-radius: 16px !important;
+        padding: 18px !important;
+        border-radius: 18px !important;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .small-modal-container {
-        width: calc(100vw - 40px) !important;
+        width: calc(100vw - 48px) !important;
     }
 
-    /* 加载界面 */
+    /* --- 加载界面 --- */
     .loader-content {
-        width: 90vw;
-        padding: 24px;
+        width: 85vw;
+        padding: 28px;
+        border-radius: 20px;
     }
 
     .loader-content h2 {
         font-size: 18px;
     }
 
-    /* Toast 通知 */
+    /* --- Toast --- */
     .player-toast {
-        left: 10px;
-        right: 10px;
-        font-size: 12px;
-        padding: 10px 16px;
+        left: 16px;
+        right: 16px;
+        bottom: 150px;
+        font-size: 13px;
+        padding: 12px 18px;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    /* --- 后台唱片装饰 --- */
+    .bg-record-container {
+        opacity: 0.3;
+        transform: scale(0.6);
+        bottom: 120px;
+        right: -40px;
     }
 }
 
-/* --- 小屏手机 (≤480px) --- */
-@media screen and (max-width: 480px) {
+/* ========== 小屏手机 (≤400px) ========== */
+@media screen and (max-width: 400px) {
     body {
-        padding-top: 46px;
-        padding-bottom: 80px;
-        background-size: 280% auto;
+        padding-bottom: 140px;
     }
 
-    .nav {
-        height: 44px;
-        padding: 0 4px;
-    }
-
-    .logo {
-        font-size: 16px;
-    }
+    .nav { height: 46px; padding: 0 6px; }
+    .logo { font-size: 17px; }
 
     .nav-list li a.nav-item {
-        font-size: 10px;
-        padding: 3px 6px;
-    }
-
-    .search-box {
-        width: 90px;
-    }
-
-    .search-input {
-        width: 60px;
-        height: 28px;
-        font-size: 10px;
-    }
-
-    .search-btn {
-        width: 28px;
-        height: 28px;
-    }
-
-    .login-btn {
-        width: 30px;
-        height: 30px;
-        font-size: 10px;
-    }
-
-    /* 轮播图更小 */
-    .carousel-container {
-        height: 180px;
-    }
-
-    /* 卡片：可单列 */
-    .card {
-        width: 100% !important;
-    }
-
-    .home-list .card {
-        width: calc(50% - 6px) !important;
-    }
-
-    .card img {
-        height: 100px;
-    }
-
-    /* 播放条更紧凑 */
-    .player-bar {
-        height: 46px;
-        padding: 4px 8px;
-        border-radius: 12px;
-        bottom: 6px;
-    }
-
-    .player-left {
-        width: 90px;
-    }
-
-    .player-title {
-        font-size: 10px;
-        max-width: 60px;
-    }
-
-    .player-controls {
-        width: 80px;
-        gap: 4px;
-    }
-
-    .player-controls i {
         font-size: 11px;
+        padding: 5px 10px;
+    }
+
+    .carousel-container {
+        height: 170px;
+    }
+
+    .card { width: calc(50% - 4px) !important; }
+    .home-list .card { width: calc(50% - 4px) !important; }
+    .card img { height: 95px; }
+
+    .player-bar {
+        height: 50px;
+        padding: 4px 10px;
+        bottom: 72px !important;
+        border-radius: 16px;
+    }
+
+    .player-title { font-size: 11px; max-width: 70px; }
+
+    .play-btn-circle {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px;
+        font-size: 14px;
     }
 
     .side-action-buttons {
-        right: 4px;
-        bottom: 70px;
-        gap: 4px;
+        bottom: 136px;
+        left: 6px;
+        gap: 6px;
     }
 
     .side-btn {
-        width: 30px;
-        height: 30px;
-        font-size: 0.8em;
+        width: 32px;
+        height: 32px;
+        font-size: 0.85em;
     }
 
-    .section-title h3 {
-        font-size: 16px;
-    }
+    .mobile-bottom-nav { height: 58px; padding: 4px 4px env(safe-area-inset-bottom, 4px); }
+    .mobile-nav-item i { font-size: 18px; }
+    .mobile-nav-item span { font-size: 9px; }
+}
+
+/* ========== 💻 桌面端隐藏底部导航栏 ========== */
+@media screen and (min-width: 769px) {
+    .mobile-bottom-nav { display: none !important; }
 }
