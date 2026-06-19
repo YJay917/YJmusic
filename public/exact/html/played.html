@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史播放弹窗</title>
+    <!-- 引入图标库 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入外部样式 -->
+    <link rel="stylesheet" href="../css/played.css">
+</head>
+<body>
+    <!-- 提示框 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- 歌单内容 -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-container">
+            <!-- 弹窗头部 -->
+            <div class="modal-header">
+                <h3 class="modal-title">历史播放</h3>
+            </div>
+            
+            <!-- 弹窗内容 (滚动区域) -->
+            <div class="table-wrap" id="historyTableWrap">
+                <div class="table-indicator" id="historyTableIndicator"></div>
+                <div class="modal-body">
+                    <ul class="playlist" id="playlist">
+                        <!-- 播放历史将通过 JavaScript 动态加载 -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 弹窗底部 -->
+            <div class="modal-footer">
+                <button class="clear-btn" id="clearBtn" title="清空播放历史记录">
+                    <i class="fa-solid fa-trash-can"></i> 清空历史
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入外部脚本 -->
+    <script src="../js/played.js"></script>
+</body>
+</html>

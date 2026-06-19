@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>播放列表弹窗</title>
+    <!-- 引入图标库 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入外部样式 -->
+    <link rel="stylesheet" href="../css/playerlist.css">
+</head>
+<body>
+    <!-- 提示框 -->
+    <div id="toast" class="toast">删除成功</div>
+
+    <!-- 歌单内容 -->
+    <div class="modal-overlay" id="playlistModal">
+        <div class="modal-container">
+            <!-- 弹窗头部 -->
+            <div class="modal-header">
+                <h3 class="modal-title">播放列表</h3>
+            </div>
+            
+            <!-- 弹窗内容 (滚动区域) -->
+            <div class="table-wrap" id="playlistTableWrap">
+                <div class="table-indicator" id="playlistTableIndicator"></div>
+                <div class="modal-body">
+                    <ul class="playlist" id="playlist">
+                        <!-- 歌曲列表将通过 JavaScript 动态加载 -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 弹窗底部 -->
+            <div class="modal-footer">
+                <button class="play-all-btn" id="playAllBtn" title="播放列表中所有歌曲">
+                    <i class="fa-solid fa-play"></i> 播放全部
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入外部脚本 -->
+    <script src="../js/playerlist.js"></script>
+</body>
+</html>

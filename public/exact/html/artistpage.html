@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>歌手详情</title>
+    <!-- 引入图标库 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入外部样式 -->
+    <link rel="stylesheet" href="../css/artistpage.css">
+</head>
+<body>
+    <!-- 头部信息 -->
+    <div class="modal-header">
+        <div class="header-bg"></div>
+        <div class="header-content">
+            <img src="../歌手/周杰伦.png" alt="歌手头像" class="avatar" id="singerAvatar">
+            <div class="artist-info">
+                <div class="artist-name-row">
+                    <h1 id="singerName">加载中...</h1>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-value" id="statCountry">—</span>
+                        <span class="stat-label">国籍</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statFans">—</span>
+                        <span class="stat-label">粉丝</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statSongs">—</span>
+                        <span class="stat-label">歌曲</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 个人歌曲区 -->
+    <div class="songs-section">
+        <div class="section-header">
+            <div class="section-header-left">
+                <h2>个人歌曲</h2>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <div class="table-indicator" id="tableIndicator"></div>
+            <!-- 歌曲表格 -->
+            <table class="songs-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>歌曲</th>
+                    <th></th>
+                    <th>专辑</th>
+                    <th>时长</th>
+                </tr>
+            </thead>
+            <tbody id="songsBody">
+                <tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">加载中...</td></tr>
+            </tbody>
+        </table>
+        </div>
+        <div class="pagination" id="songPagination" style="display:none;">
+            <div class="pagination-indicator" id="songPagIndicator"></div>
+            <button class="pagination-btn" id="songPrevPage" disabled>上一页</button>
+            <span class="pagination-info" id="songPageInfo">第 1 页 / 共 1 页</span>
+            <button class="pagination-btn active" id="songNextPage" disabled>下一页</button>
+        </div>
+    </div>
+
+    <!-- 提示弹窗 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 引入外部脚本 -->
+    <script src="../js/artistpage.js?v=13"></script>
+</body>
+</html>
