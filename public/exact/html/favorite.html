@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的收藏弹窗</title>
+    <!-- 引入图标库 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入外部样式 -->
+    <link rel="stylesheet" href="../css/favorite.css">
+</head>
+<body>
+    <!-- 提示框 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- 歌单内容 -->
+    <div class="modal-overlay" id="playlistModal">
+        <div class="modal-container">
+            <!-- 弹窗头部 -->
+            <div class="modal-header">
+                <h3 class="modal-title">我的收藏</h3>
+            </div>
+            
+            <!-- 弹窗内容 -->
+            <div class="table-wrap" id="favTableWrap">
+                <div class="table-indicator" id="favTableIndicator"></div>
+                <div class="modal-body">
+                    <ul class="playlist" id="playlist">
+                        <!-- 收藏歌曲将通过 JavaScript 动态加载 -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 弹窗底部 -->
+            <div class="modal-footer">
+                <button id="refreshBtn" class="refresh-btn" title="刷新我的收藏列表">
+                    <i class="fa-solid fa-rotate-right"></i> 刷新列表
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入外部脚本 -->
+    <script src="../js/favorite.js"></script>
+</body>
+</html>
