@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YJayMusic 后台管理</title>
+
+    <!-- 图标库（与前台一致） -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         改完 admin.css / admin.js 后，把下面两个 ?v= 的数字 +1，
+         浏览器就会强制重新下载，不会再出现"改了看不到"的情况。
+         ══════════════════════════════════════════════════════════════════ -->
+    <!-- 后台样式（配色/动效参数取自前台 index.css） -->
+    <link rel="stylesheet" href="css/admin.css?v=32">
+    <!-- ECharts：数据统计模块用它画柱状图 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+
+<!-- no-motion：关闭后台所有动效。想恢复动画把这个类名去掉即可 -->
+<!-- 说明：后台登录门已移除，不再需要 logged-out 这个类 -->
+<body class="no-motion">
+
+<!-- ==================== 左侧导航栏 ==================== -->
+<aside class="sidebar" id="sidebar">
+    <!-- 标志 -->
+    <div class="brand" id="logo">
+        <i class="fa-solid fa-compact-disc"></i>
+        <div>
+            YJayMusic
+            <small>后台管理</small>
+        </div>
+    </div>
+
+    <!-- 导航（由 admin.js 按模块配置生成） -->
+    <nav class="side-nav" id="sideNav">
+        <div class="side-indicator" id="sideIndicator"></div>
+    </nav>
+
+    <!-- 底部：当前用户与操作 -->
+    <div class="side-foot">
+        <div class="who" id="who"></div>
+        <a class="side-btn" href="./"><i class="fa-solid fa-house"></i> 打开前台</a>
+        <button class="side-btn" id="reloadBtn"><i class="fa-solid fa-rotate"></i> 刷新当前页</button>
+        <button class="side-btn" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> 退出前台登录</button>
+    </div>
+</aside>
+
+<!-- ==================== 主内容区 ==================== -->
+<main class="main">
+    <!-- 内容由 admin.js 按模块渲染；不再有"请先登录"的占位 -->
+    <div class="content" id="content"></div>
+</main>
+
+<!-- ==================== 通用弹窗（表单 / 删除确认） ==================== -->
+<div class="modal-mask" id="modalMask">
+    <div class="modal-container" id="modalBox"></div>
+</div>
+
+<!-- ==================== 提示条 ==================== -->
+<div id="toasts"></div>
+
+<script src="js/admin.js?v=36"></script>
+</body>
+</html>

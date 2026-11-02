@@ -1,9 +1,6 @@
 // 获取DOM元素
 const playlist = document.getElementById('playlist');
 
-// 歌手列表 (后备使用)
-const singers = ['余豪冉', '杨启飞', '万子扬','叶其弦','林建宇'];
-
 // 歌曲库：包含真实存在的歌曲及其信息
 const availableSongs = [
     { title: '特别的人', singer: '方大同', duration: '04:19' },
@@ -47,20 +44,6 @@ const availableSongs = [
     { title: '说好不哭', singer: '周杰伦', duration: '03:42' },
     { title: '说好的幸福呢', singer: '周杰伦', duration: '04:16' }
 ];
-
-// 生成3-5分钟随机时长（格式：m:ss）
-function getRandomDuration() {
-    const minutes = Math.floor(Math.random() * 3) + 3;
-    const seconds = Math.floor(Math.random() * 60);
-    const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
-    return `${minutes}:${formattedSeconds}`;
-}
-
-// 随机获取歌手名字
-function getRandomSinger() {
-    const randomIndex = Math.floor(Math.random() * singers.length);
-    return singers[randomIndex];
-}
 
 // 保存到本地存储
 function saveToLocalStorage() {
@@ -448,22 +431,6 @@ function deleteSong(btn) {
 }
 
 // 显示提示框函数
-function showToast(message) {
-    // 优先使用父窗口的提示函数，确保提示框在屏幕中心
-    if (window.parent && typeof window.parent.showPlayerToast === 'function') {
-        window.parent.showPlayerToast(message);
-        return;
-    }
-
-    const toast = document.getElementById('toast');
-    if (!toast) return;
-    toast.textContent = message;
-    toast.classList.add('show');
-
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 2000);
-}
 
 // 绑定删除按钮事件
 function bindDeleteEvent(deleteBtn) {

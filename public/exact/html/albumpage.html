@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专辑详情</title>
+    <!-- 引入图标库 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入外部样式 -->
+    <link rel="stylesheet" href="../css/albumpage.css">
+    <link rel="stylesheet" href="../css/toast.css">
+</head>
+<body>
+    <!-- 头部信息 -->
+    <div class="modal-header">
+        <div class="header-bg"></div>
+        <div class="header-content">
+            <img src="" alt="专辑封面" class="avatar album-avatar" id="albumCover">
+            <div class="artist-info">
+                <div class="artist-name-row">
+                    <h1 id="albumName">加载中...</h1>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-value" id="statSinger">—</span>
+                        <span class="stat-label">歌手</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statSongs">—</span>
+                        <span class="stat-label">歌曲</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statPrice">—</span>
+                        <span class="stat-label">价格</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 专辑歌曲区 -->
+    <div class="songs-section">
+        <div class="section-header">
+            <div class="section-header-left">
+                <h2>专辑歌曲</h2>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <div class="table-indicator" id="tableIndicator"></div>
+            <!-- 歌曲表格 -->
+            <table class="songs-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>歌曲</th>
+                    <th></th>
+                    <th>歌手</th>
+                    <th>时长</th>
+                </tr>
+            </thead>
+            <tbody id="songsBody">
+                <tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">加载中...</td></tr>
+            </tbody>
+        </table>
+        </div>
+        <div class="pagination" id="songPagination" style="display:none;">
+            <div class="pagination-indicator" id="songPagIndicator"></div>
+            <button class="pagination-btn" id="songPrevPage" disabled>上一页</button>
+            <span class="pagination-info" id="songPageInfo">第 1 页 / 共 1 页</span>
+            <button class="pagination-btn active" id="songNextPage" disabled>下一页</button>
+        </div>
+    </div>
+
+    <!-- 未购买遮罩：未购买时盖住歌曲区，购买后自动消失 -->
+    <div class="lock-mask" id="lockMask" style="display:none;">
+        <div class="lock-box">
+            <div class="lock-cover-wrap">
+                <img id="lockCover" src="" alt="专辑封面">
+                <i class="fa-solid fa-lock lock-icon"></i>
+            </div>
+            <h3 class="lock-title">该专辑为付费专辑</h3>
+            <p class="lock-desc">购买后即可查看并播放专辑内的全部歌曲</p>
+            <div class="lock-price">¥ <span id="lockPrice">--</span></div>
+            <button class="lock-buy-btn" id="lockBuyBtn"><i class="fas fa-shopping-cart"></i> 立即购买</button>
+            <p class="lock-hint" id="lockHint"></p>
+        </div>
+    </div>
+
+    <!-- 购买确认弹窗：点「立即购买」先在这里核对信息（数量/合计），确认后才下单 -->
+    <div class="buy-modal-mask" id="buyModalMask" style="display:none;">
+        <div class="buy-modal">
+            <button class="buy-modal-close" id="buyModalClose" title="关闭">&times;</button>
+            <h3 class="buy-modal-title"><i class="fa-solid fa-cart-shopping"></i> 购买专辑</h3>
+            <div class="buy-album-row">
+                <img id="buyCover" src="" alt="专辑封面">
+                <div class="buy-album-meta">
+                    <p class="buy-album-name" id="buyAlbumName">—</p>
+                    <p class="buy-album-singer" id="buyAlbumSinger">—</p>
+                </div>
+            </div>
+            <div class="buy-row">
+                <span class="buy-row-label">单价</span>
+                <span class="buy-price">¥ <span id="buyUnitPrice">--</span></span>
+            </div>
+            <div class="buy-row">
+                <span class="buy-row-label">数量</span>
+                <div class="qty-stepper">
+                    <button type="button" class="qty-btn" id="qtyMinus" aria-label="减少数量">&minus;</button>
+                    <span class="qty-value" id="qtyValue">1</span>
+                    <button type="button" class="qty-btn" id="qtyPlus" aria-label="增加数量">+</button>
+                </div>
+            </div>
+            <div class="buy-total-row">
+                <span class="buy-row-label">合计</span>
+                <span class="buy-total">¥ <span id="buyTotal">--</span></span>
+            </div>
+            <button class="buy-confirm-btn" id="buyConfirmBtn"><i class="fas fa-shopping-cart"></i> 确认购买</button>
+            <p class="buy-error" id="buyError"></p>
+        </div>
+    </div>
+
+    <!-- 提示弹窗 -->
+
+    <!-- 引入外部脚本 -->
+    <script src="../js/common/toast.js"></script>
+    <script src="../js/albumpage.js?v=7"></script>
+</body>
+</html>

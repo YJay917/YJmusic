@@ -1,0 +1,33 @@
+/* =============================================================================
+   公共组件：轻提示 toast 样式（css/toast.css）
+   与 js/common/toast.js 配套使用；在 iframe 内单独打开页面时生效。
+   在 index.html 里由播放条的 .player-toast 统一显示，不加载本文件。
+   ============================================================================= */
+
+.yjay-toast {
+    position: fixed;
+    top: 46%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    z-index: 9999;
+    max-width: 80vw;
+    padding: 12px 26px;
+    border-radius: 999px;
+    background: rgba(12, 10, 11, 0.78);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .28s ease, transform .28s ease;
+}
+
+.yjay-toast.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}

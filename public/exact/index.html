@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music - 音乐网站</title>
     <!-- 引入外部CSS样式文件 -->
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/index.css?v=18">
+    <link rel="stylesheet" href="css/toast.css?v=1">
     <!-- 引入图标库 -->
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 引入Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- 引入 ECharts -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 </head>
@@ -43,6 +42,9 @@
                 <div class="search-dropdown" id="navSearchDropdown"></div>
             </div>
             
+            <!-- 后台管理入口已移入「个人设置」弹窗，且仅管理员可见
+                 （由 js/modules/09-music-manage.js 的 renderSettingsModal 按角色显示） -->
+
             <!-- 用户登录入口 -->
             <div class="login-area">
                 <button class="login-btn">登录</button>
@@ -308,7 +310,6 @@
             <div class="content-tab" id="latest-tab">
                 <div class="section-title">
                     <h3>热门</h3>
-                    <span class="section-btn-group" onmouseleave="resetBtnIndicator(this)"><div class="btn-slide-indicator"></div><button class="hot-edit-page-btn" id="editRemenBtn" style="display:none;" onmouseenter="moveBtnIndicator(this)" data-default="1">编辑</button><button class="hot-edit-page-btn" id="refreshRemenBtn" onmouseenter="moveBtnIndicator(this)" onclick="location.reload();">刷新</button></span>
                 </div>
 
             </div>
@@ -326,7 +327,6 @@
             <div class="content-tab" id="hot-tab">
                 <div class="section-title">
                     <h3>排行</h3>
-                    <span class="section-btn-group" onmouseleave="resetBtnIndicator(this)"><div class="btn-slide-indicator"></div><button class="hot-edit-page-btn" id="editHotBtn" style="display:none;" onmouseenter="moveBtnIndicator(this)" data-default="1">编辑</button><button class="hot-edit-page-btn" id="refreshHotBtn" onmouseenter="moveBtnIndicator(this)" onclick="location.reload();">刷新</button></span>
                 </div>
                 <!-- 从1.html添加的音乐榜单HTML内容 -->
                 <div class="grid-container">
@@ -412,7 +412,6 @@
             <div class="content-tab" id="category-tab">
                 <div class="section-title">
                     <h3>歌手</h3>
-                    <span class="section-btn-group" onmouseleave="resetBtnIndicator(this)"><div class="btn-slide-indicator"></div><button class="hot-edit-page-btn" id="editSingerBtn" style="display:none;" onmouseenter="moveBtnIndicator(this)" data-default="1">编辑</button><button class="hot-edit-page-btn" id="refreshSingerBtn" onmouseenter="moveBtnIndicator(this)" onclick="location.reload();">刷新</button></span>
                     <div class="filter-bar">
                         <div class="filter-indicator"></div>
                         <button class="filter-btn active" data-type="all">全部</button>
@@ -438,7 +437,6 @@
             <div class="content-tab" id="singer-tab">
                 <div class="section-title">
                     <h3>专辑</h3>
-                    <span class="section-btn-group" onmouseleave="resetBtnIndicator(this)"><div class="btn-slide-indicator"></div><button class="hot-edit-page-btn" id="editAlbumBtn" style="display:none;" onmouseenter="moveBtnIndicator(this)" data-default="1">编辑</button><button class="hot-edit-page-btn" id="refreshAlbumBtn" onmouseenter="moveBtnIndicator(this)" onclick="location.reload();">刷新</button></span>
                 </div>
                 <!-- 专辑列表（从数据库加载） -->
                 <div class="album-list" id="albumList">
@@ -527,23 +525,20 @@
                     <label for="confirmPassword">确认密码</label>
                     <input type="password" id="confirmPassword" placeholder="请再次输入密码" required>
                 </div>
+                <!-- 协议勾选：与登录弹窗同款玻璃拟态样式，未勾选不允许提交 -->
+                <div class="agreement-item" id="registerAgreementItem">
+                    <input type="checkbox" id="registerAgreementCheck">
+                    <label for="registerAgreementCheck">我已阅读并同意<a href="javascript:void(0)">《用户服务协议》</a>和<a href="javascript:void(0)">《隐私政策》</a></label>
+                </div>
                 <button type="submit" class="submit-btn">注册</button>
                 <div class="tips" id="registerTips"></div>
+                <!-- 与登录弹窗的「注册」入口对称 -->
+                <div class="register-tip">已有账号？<a id="goToLogin">去登录</a></div>
             </form>
         </div>
     </div>
 
-    <!-- ========================== 模块：退出登录弹窗 ========================== -->
-    <div class="modal-mask" id="logoutModal">
-        <div class="modal-container small-modal-container">
-            <span class="close-btn" id="closeLogoutBtn">&times;</span>
-            <h2 class="modal-title" style="font-size: 18px; margin-bottom: 25px;">是否退出登录？</h2>
-            <div style="display: flex; justify-content: space-around; gap: 15px; margin-top: 10px;">
-                <button class="submit-btn" id="confirmLogoutBtn">确认</button>
-                <button class="submit-btn cancel-btn" id="cancelLogoutBtn">取消</button>
-            </div>
-        </div>
-    </div>
+    <!-- 退出登录：不再弹确认框，点击后直接退出并由黑胶囊 toast 提示（见 09-music-manage.js） -->
 
     <!-- ========================== 模块：个人设置 / 后台管理模板 ========================== -->
     <div class="modal-mask" id="settingsModal">
@@ -571,14 +566,21 @@
                             <i class="fa-solid fa-user"></i>
                             <span class="profile-display-account" id="settingsAccount">visitor</span>
                         </div>
-                        <!-- 管理员按钮（名字下方） -->
+                        <!-- 管理员按钮（名字下方）—— 这里是原来「用户管理 / 音乐管理」
+                             两个按钮所在的位置，现合并成一个「后台管理」入口。
+                             默认隐藏，管理员可见：renderAdminPanel() 把外层置为 flex，
+                             renderSettingsModal() 再把链接本身置为 inline-flex。 -->
                         <div class="admin-btns-inline" id="adminBtnsInline" style="display:none;">
-                            <button type="button" class="action-btn admin-btn-red" id="openUserManageBtn">
-                                <i class="fa-solid fa-users"></i> 用户管理
-                            </button>
-                            <button type="button" class="action-btn admin-btn-gray" id="openMusicManageBtn">
-                                <i class="fa-solid fa-music"></i> 音乐管理
-                            </button>
+                            <!-- target="_top"：必须的。
+                                 在 4173 那个 Vue 外壳里，前台是装在 <iframe> 里的，
+                                 不加这个属性的话 admin.html 会在 iframe 内部打开 ——
+                                 浏览器地址栏不会变，一刷新就回到外壳首页（前台）。
+                                 加上它就从 iframe 里跳出来，地址栏变成 .../exact/admin.html，
+                                 刷新也留在后台。8080 下没有 iframe，这个属性等于没影响。 -->
+                            <a class="action-btn admin-btn-red" id="settingsAdminEntry" href="admin.html"
+                               target="_top" title="进入后台管理">
+                                <i class="fa-solid fa-sliders"></i> 后台管理
+                            </a>
                         </div>
                     </div>
                 </section>
@@ -614,59 +616,9 @@
         </div>
     </div>
 
-    <!-- ========================== 模块：编辑用户弹窗 ========================== -->
-    <div class="modal-mask" id="editUserModal">
-        <div class="modal-container password-modal-container">
-            <span class="close-btn" id="closeEditUserBtn">&times;</span>
-            <h2 class="modal-title">编辑用户</h2>
-            <form id="editUserForm">
-                <input type="hidden" id="editUserId">
-                <div class="form-item compact-form-item">
-                    <label for="editUserName">名字</label>
-                    <input type="text" id="editUserName" placeholder="请输入名字" required>
-                </div>
-                <div class="form-item compact-form-item">
-                    <label for="editUserAccount">账号</label>
-                    <input type="text" id="editUserAccount" placeholder="请输入账号" required>
-                </div>
-                <div class="form-item compact-form-item">
-                    <label for="editUserPassword">新密码</label>
-                    <input type="password" id="editUserPassword" placeholder="留空则不修改密码">
-                </div>
-                <button type="submit" class="submit-btn">保存</button>
-                <div class="tips" id="editUserTips"></div>
-            </form>
-        </div>
-    </div>
-
-    <!-- ========================== 模块：添加/编辑音乐弹窗 ========================== -->
-    <div class="modal-mask" id="musicFormModal">
-        <div class="modal-container password-modal-container">
-            <span class="close-btn" id="closeMusicFormBtn">&times;</span>
-            <h2 class="modal-title" id="musicFormTitle">添加音乐</h2>
-            <form id="musicForm">
-                <input type="hidden" id="musicFormId">
-                <div class="form-item compact-form-item">
-                    <label for="musicFormName">歌名</label>
-                    <input type="text" id="musicFormName" placeholder="请输入歌名" required>
-                </div>
-                <div class="form-item compact-form-item">
-                    <label for="musicFormSinger">歌手名</label>
-                    <input type="text" id="musicFormSinger" placeholder="请输入歌手名" required>
-                </div>
-                <div class="form-item compact-form-item">
-                    <label for="musicFormImage">封面图片</label>
-                    <input type="file" id="musicFormImage" accept="image/*" required>
-                </div>
-                <div class="form-item compact-form-item">
-                    <label for="musicFormFile">音乐文件 MP3</label>
-                    <input type="file" id="musicFormFile" accept="audio/mpeg,.mp3" required>
-                </div>
-                <button type="submit" class="submit-btn">保存</button>
-                <div class="tips" id="musicFormTips"></div>
-            </form>
-        </div>
-    </div>
+    <!-- 说明：前台原有的「编辑用户 / 添加·编辑音乐 / 用户管理 / 音乐管理」弹窗已删除，
+         所有管理编辑功能统一在后台管理页（admin.html）完成，
+         入口在「个人设置」里，仅管理员可见。个人用的「修改密码」弹窗保留在下方。 -->
 
     <!-- ========================== 模块：修改密码弹窗 ========================== -->
     <div class="modal-mask" id="passwordModal">
@@ -692,446 +644,68 @@
         </div>
     </div>
 
-    <!-- ========================== 模块：用户管理弹窗（管理员） ========================== -->
-    <div class="modal-mask" id="userManageModal">
-        <div class="modal-container settings-modal-container" style="display:flex;flex-direction:column;">
-            <span class="close-btn" id="closeUserManageBtn">&times;</span>
-            <h2 class="modal-title" style="margin-bottom:16px;">用户管理</h2>
-            <div style="flex:1;min-height:0;display:flex;flex-direction:column;">
-                <div class="table-wrap" id="userTableWrap" style="position:relative;flex:1;min-height:0;overflow-y:auto;">
-                    <div class="table-indicator" id="userTableIndicator"></div>
-                    <table class="songs-table">
-                        <thead><tr>
-                            <th style="width:35px;">名字</th>
-                            <th style="width:60px;">账号</th>
-                            <th style="width:60px;">密码</th>
-                            <th style="width:50px;">权限</th>
-                            <th style="width:100px;text-align:center;">操作</th>
-                        </tr></thead>
-                        <tbody id="adminUsersTable"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================== 模块：音乐管理弹窗（管理员） ========================== -->
-    <div class="modal-mask" id="musicManageModal">
-        <div class="modal-container settings-modal-container" style="display:flex;flex-direction:column;">
-            <span class="close-btn" id="closeMusicManageBtn">&times;</span>
-            <h2 class="modal-title" style="margin-bottom:8px;">音乐管理</h2>
-            <div class="search-row" style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
-                <input type="text" id="musicSearchInput" placeholder="搜索歌名或歌手..." style="flex:1;padding:10px 16px;border-radius:22px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font-size:14px;outline:none;">
-                <button id="musicSearchBtn" class="action-btn-small" style="padding:10px 20px;">搜索</button>
-                <button class="action-btn-small" id="openAddMusicBtn" style="padding:10px 20px;background:rgba(216,46,46,0.25);border:1px solid rgba(216,46,46,0.3);">+ 添加音乐</button>
-            </div>
-            <div style="flex:1;min-height:0;display:flex;flex-direction:column;">
-                <div class="table-wrap" id="musicTableWrap" style="position:relative;flex:1;min-height:0;overflow-y:auto;">
-                    <div class="table-indicator" id="musicTableIndicator"></div>
-                    <table class="songs-table">
-                        <thead><tr>
-                            <th style="width:80px;">封面</th>
-                            <th style="width:200px;text-align:left !important;">歌名</th>
-                            <th style="width:100px;">歌手</th>
-                            <th style="width:130px;text-align:center;">操作</th>
-                        </tr></thead>
-                        <tbody id="musicTableBody"></tbody>
-                    </table>
-                </div>
-                <div class="pagination" id="musicPagination" style="display:none;justify-content:center;align-items:center;gap:8px;margin-top:auto;padding:8px 0 4px;position:relative;">
-                    <div class="pagination-indicator" id="musicPagIndicator"></div>
-                    <button class="pagination-btn" id="musicPrevPage" disabled>上一页</button>
-                    <span class="pagination-info" id="musicPageInfo">第 1 页 / 共 1 页</span>
-                    <button class="pagination-btn" id="musicNextPage" disabled>下一页</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================== 模块：编辑热门歌曲弹窗 ========================== -->
-    <div class="modal-mask" id="hotEditModal">
-        <div class="modal-container settings-modal-container" style="display:flex;flex-direction:column;">
-            <span class="close-btn" id="closeHotEditBtn">&times;</span>
-            <h2 class="modal-title" style="margin-bottom:35px;">编辑</h2>
-            <div style="display:flex;gap:10px;margin-bottom:35px;position:relative;" id="hotEditTabs">
-                <div class="hot-tab-indicator"></div>
-                <button class="hot-tab-btn active" data-ci="0">飙升榜</button>
-                <button class="hot-tab-btn" data-ci="1">热歌榜</button>
-                <button class="hot-tab-btn" data-ci="2">新歌榜</button>
-                <button class="hot-tab-btn" data-ci="3">流行指数榜</button>
-                <button class="hot-tab-btn" data-ci="4">MV榜</button>
-            </div>
-            <div class="table-wrap" id="hotEditTableWrap" style="flex:1;min-height:0;position:relative;border:1px solid rgba(255,255,255,0.1);">
-                <div class="table-inner" style="padding-right:6px;">
-                    <div class="table-indicator" id="hotEditTableIndicator"></div>
-                    <table class="songs-table" style="margin:0;">
-                        <thead><tr>
-                            <th style="width:40px;text-align:center;">#</th>
-                            <th style="width:36px;"></th>
-                            <th style="width:160px;">当前</th>
-                            <th style="width:120px;"></th>
-                            <th style="width:auto;">选择歌曲</th>
-                        </tr></thead>
-                        <tbody id="hotEditBody"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:24px;">
-                <span style="color:rgba(255,255,255,0.3);font-size:12px;">修改后即时生效</span>
-                <div style="display:flex;gap:14px;position:relative;" id="hotEditFooterBtns">
-                    <div class="hot-footer-indicator"></div>
-                    <button class="hot-footer-btn" id="cancelHotEditBtn">取消</button>
-                    <button class="hot-footer-btn primary" id="saveHotEditBtn">保存</button>
-                </div>
-            </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================== 模块：编辑热门歌曲弹窗（remen） ========================== -->
-    <div class="modal-mask" id="remenEditModal">
-        <div class="modal-container settings-modal-container" style="display:flex;flex-direction:column;">
-            <span class="close-btn" id="closeRemenEditBtn">&times;</span>
-            <h2 class="modal-title" style="margin-bottom:35px;">编辑热门歌曲</h2>
-            <div class="table-wrap" id="remenEditTableWrap" style="flex:1;min-height:0;position:relative;border:1px solid rgba(255,255,255,0.1);">
-                <div class="table-inner" style="padding-right:6px;">
-                    <div class="table-indicator" id="remenEditTableIndicator"></div>
-                    <table class="songs-table" style="margin:0;width:100%;table-layout:fixed;">
-                    <thead><tr>
-                        <th style="width:40px;text-align:center;">#</th>
-                        <th style="width:36px;"></th>
-                        <th style="width:180px;">当前</th>
-                        <th style="width:100px;"></th>
-                        <th>选择歌曲</th>
-                    </tr></thead>
-                    <tbody id="remenEditBody"></tbody>
-                </table>
-            </div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:24px;">
-                <span style="color:rgba(255,255,255,0.3);font-size:12px;">修改后即时生效</span>
-                <div style="display:flex;gap:14px;position:relative;" id="remenEditFooterBtns">
-                    <div class="hot-footer-indicator"></div>
-                    <button class="hot-footer-btn" id="cancelRemenEditBtn">取消</button>
-                    <button class="hot-footer-btn primary" id="saveRemenEditBtn">保存</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================== 模块：通用提示弹窗（替代原生alert） ========================== -->
-    <div class="modal-mask" id="alertModal">
-        <div class="modal-container small-modal-container">
-            <h2 class="modal-title" style="font-size: 14px; margin-bottom: 16px; text-align: left;">提示</h2>
-            <div id="alertMessage" style="text-align: center; margin-bottom: 25px; color: #fff; font-size: 16px;">作者偷懒了...<br>只做了周杰伦的详细内容</div>
-            <button class="submit-btn" id="confirmAlertBtn">确认</button>
-        </div>
-    </div>
-
-    <!-- ========================== 模块：通用确认弹窗（替代原生confirm） ========================== -->
-    <div class="modal-mask" id="confirmModal">
-        <div class="modal-container small-modal-container">
-            <h2 class="modal-title" style="font-size: 16px; text-align: left; padding-bottom: 0;">提示</h2>
-            <div id="confirmMessage" style="text-align: center; margin-bottom: 20px; color: rgba(255,255,255,0.85); font-size: 15px;"></div>
-            <div style="display: flex; gap: 12px;">
-                <button class="submit-btn cancel-btn" id="confirmCancelBtn">取消</button>
-                <button class="submit-btn" id="confirmOkBtn" style="background: rgba(255,77,79,0.25); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,77,79,0.4);">确认</button>
-            </div>
-        </div>
-    </div>
-
-
-
-    <!-- ========================== 模块：歌手编辑弹窗（管理员） ========================== -->
-    <div class="modal-mask" id="singerEditModal">
-        <div class="modal-container settings-modal-container" style="display:flex;flex-direction:column;">
-            <span class="close-btn" id="closeSingerEditBtn">&times;</span>
-            <h2 class="modal-title">歌手管理</h2>
-            <style>
-                #newSingerFans::-webkit-outer-spin-button,
-                #newSingerFans::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-                #newSingerFans { -moz-appearance: textfield; }
-                #newSingerImage::file-selector-button {
-                    padding:6px 14px; border-radius:18px; border:1px solid rgba(255,255,255,0.15);
-                    background:rgba(255,255,255,0.08); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
-                    color:#fff; cursor:pointer; font-size:11px; font-weight:500; margin-right:6px;
-                    transition:all 0.25s;
-                }
-                #newSingerImage::file-selector-button:hover { background:rgba(255,255,255,0.15); }
-                /* ══════════ 歌手编辑表格样式（复刻 artistpage） ══════════ */
-                #singerEditModal .table-wrap { position:relative; flex:1; min-height:0; }
-                #singerEditModal .table-indicator { position:absolute; left:2px; top:0; width:calc(100% - 4px); height:0; border-radius:0; background:rgba(228,57,60,0.12); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid rgba(255,100,100,0.4); box-shadow:none; transition:top 0.55s cubic-bezier(0.33,0,0.67,1),height 0.55s cubic-bezier(0.33,0,0.67,1); pointer-events:none; z-index:0; opacity:0; }
-                #singerEditModal .songs-table { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; position:relative; z-index:1; }
-                #singerEditModal .songs-table th { padding:12px 6px; font-size:16px; text-align:left; color:#fff; font-weight:normal; border-bottom:1px solid rgba(255,255,255,0.1); vertical-align:middle; }
-                #singerEditModal .songs-table td { padding:12px 6px; font-size:15px; text-align:left; color:#fff; border-bottom:1px solid rgba(255,255,255,0.05); }
-                #singerEditModal .songs-table tr:last-child td { border-bottom:none; }
-                #singerEditModal .song-row { cursor:pointer; transition:background-color 0.15s,box-shadow 0.15s; border-radius:0; margin:2px 0; border:1px solid transparent; }
-                #singerEditModal .song-row:hover { background-color:rgba(255,255,255,0.08); box-shadow:0 4px 15px rgba(0,0,0,0.2); border-color:rgba(255,255,255,0.1); }
-                #singerEditModal .song-name { color:#fff; font-weight:500; }
-                #singerEditModal .col-heart { width:48px; text-align:center !important; padding:0 !important; }
-                #singerEditModal .col-play { width:28px; text-align:center !important; padding:0 !important; }
-                #singerEditModal .col-album { width:auto; }
-                #singerEditModal .album-text { color:#fff; font-size:14px; }
-                #singerEditModal .col-duration { padding-left:30px; }
-                #singerEditModal .pagination { display:flex; justify-content:center; align-items:center; gap:8px; margin-top:auto; padding:8px 0 4px; position:relative; }
-                #singerEditModal .pagination-indicator { position:absolute; top:8px; left:0; height:calc(100% - 12px); border-radius:20px; background:rgba(228,57,60,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border:1px solid rgba(255,100,100,0.4); box-shadow:0 2px 16px rgba(228,57,60,0.3); transition:left 0.55s cubic-bezier(0.33,0,0.67,1),width 0.55s cubic-bezier(0.33,0,0.67,1); pointer-events:none; z-index:0; }
-                #singerEditModal .pagination-btn { padding:6px 20px; border-radius:20px; border:1px solid transparent; background:transparent; color:rgba(255,255,255,0.65); cursor:pointer; font-size:15px; font-weight:500; transition:color 0.35s; position:relative; z-index:1; }
-                #singerEditModal .pagination-btn:hover { color:#fff; }
-                #singerEditModal .pagination-btn:disabled { cursor:not-allowed; opacity:0.3; }
-                #singerEditModal .pagination-info { color:rgba(255,255,255,0.85); font-size:14px; min-width:100px; text-align:center; position:relative; z-index:1; }
-                #singerEditModal input::placeholder { color:rgba(255,255,255,0.5); }
-                #singerEditModal input { color:#fff; }
-                /* ══════════ 用户管理表格样式（复刻歌手编辑） ══════════ */
-                #userManageModal .table-wrap { position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.12) transparent; }
-                #userManageModal .table-wrap::-webkit-scrollbar { width:5px; }
-                #userManageModal .table-wrap::-webkit-scrollbar-track { background:transparent; }
-                #userManageModal .table-wrap::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:3px; }
-                #userManageModal .table-indicator { position:absolute; left:0; top:0; width:100%; height:0; border-radius:0; background:rgba(228,57,60,0.12); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid rgba(255,100,100,0.4); box-shadow:none; transition:top 0.55s cubic-bezier(0.33,0,0.67,1),height 0.55s cubic-bezier(0.33,0,0.67,1); pointer-events:none; z-index:0; opacity:0; }
-                #userManageModal .songs-table { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; position:relative; z-index:1; }
-                #userManageModal .songs-table th { padding:12px 6px; font-size:16px; text-align:center !important; color:rgba(255,255,255,0.55); font-weight:normal; border-bottom:1px solid rgba(255,255,255,0.1); vertical-align:middle; }
-                #userManageModal .songs-table td { padding:12px 6px; font-size:15px; text-align:center; color:#fff; border-bottom:1px solid rgba(255,255,255,0.05); }
-                #userManageModal .songs-table tr:last-child td { border-bottom:none; }
-                #userManageModal .song-row { cursor:pointer; transition:background-color 0.15s,box-shadow 0.15s; border-radius:0; margin:2px 0; border:1px solid transparent; }
-                #userManageModal .song-row:hover { background-color:rgba(255,255,255,0.08); box-shadow:0 4px 15px rgba(0,0,0,0.2); border-color:rgba(255,255,255,0.1); }
-                /* ══════════ 音乐管理表格样式（复刻歌手编辑） ══════════ */
-                #musicManageModal .table-wrap { position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.12) transparent; }
-                #musicManageModal .table-wrap::-webkit-scrollbar { width:5px; }
-                #musicManageModal .table-wrap::-webkit-scrollbar-track { background:transparent; }
-                #musicManageModal .table-wrap::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:3px; }
-                #musicManageModal .table-indicator { position:absolute; left:0; top:0; width:100%; height:0; border-radius:0; background:rgba(228,57,60,0.12); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid rgba(255,100,100,0.4); box-shadow:none; transition:top 0.55s cubic-bezier(0.33,0,0.67,1),height 0.55s cubic-bezier(0.33,0,0.67,1); pointer-events:none; z-index:0; opacity:0; }
-                #musicManageModal .songs-table { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; position:relative; z-index:1; }
-                #musicManageModal .songs-table th { padding:12px 6px; font-size:16px; text-align:center !important; color:rgba(255,255,255,0.55); font-weight:normal; border-bottom:1px solid rgba(255,255,255,0.1); vertical-align:middle; }
-                #musicManageModal .songs-table td { padding:12px 6px; font-size:15px; text-align:center; color:#fff; border-bottom:1px solid rgba(255,255,255,0.05); }
-                #musicManageModal .songs-table td:nth-child(2) { text-align:left; }
-                #musicManageModal .songs-table tr:last-child td { border-bottom:none; }
-                #musicManageModal .song-row { cursor:pointer; transition:background-color 0.15s,box-shadow 0.15s; border-radius:0; margin:2px 0; border:1px solid transparent; }
-                #musicManageModal .song-row:hover { background-color:rgba(255,255,255,0.08); box-shadow:0 4px 15px rgba(0,0,0,0.2); border-color:rgba(255,255,255,0.1); }
-                #musicManageModal .pagination-btn { padding:6px 20px; border-radius:20px; border:1px solid transparent; background:transparent; color:rgba(255,255,255,0.65); cursor:pointer; font-size:15px; font-weight:500; transition:color 0.35s; position:relative; z-index:1; }
-                #musicManageModal .pagination-btn:hover { color:#fff; }
-                #musicManageModal .pagination-btn:disabled { cursor:not-allowed; opacity:0.3; }
-                #musicManageModal .pagination-info { color:rgba(255,255,255,0.85); font-size:14px; min-width:100px; text-align:center; position:relative; z-index:1; }
-                #musicManageModal .pagination-indicator { position:absolute; top:8px; left:0; height:calc(100% - 12px); border-radius:20px; background:rgba(228,57,60,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border:1px solid rgba(255,100,100,0.4); box-shadow:0 2px 16px rgba(228,57,60,0.3); transition:left 0.55s cubic-bezier(0.33,0,0.67,1),width 0.55s cubic-bezier(0.33,0,0.67,1); pointer-events:none; z-index:0; }
-                #userManageModal .settings-modal-container,
-                #musicManageModal .settings-modal-container { padding-left:0 !important; padding-right:0 !important; }
-                #userManageModal .modal-title,
-                #musicManageModal .modal-title { padding-left:28px; }
-                #userManageModal .close-btn,
-                #musicManageModal .close-btn { right:8px; }
-                #musicManageModal .search-row { padding-left:28px; padding-right:28px; }
-                /* ══════════ 热门编辑表格样式 ══════════ */
-                #hotEditModal .table-wrap, #remenEditModal .table-wrap { position:relative; flex:1; min-height:0; border-radius:0 !important; overflow-y:auto; overflow-x:hidden; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.12) transparent; }
-                #hotEditModal .table-wrap::-webkit-scrollbar, #remenEditModal .table-wrap::-webkit-scrollbar { width:5px; }
-                #hotEditModal .table-wrap::-webkit-scrollbar-track, #remenEditModal .table-wrap::-webkit-scrollbar-track { background:transparent; }
-                #hotEditModal .table-wrap::-webkit-scrollbar-thumb, #remenEditModal .table-wrap::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:3px; }
-                #hotEditModal .table-wrap::-webkit-scrollbar-thumb:hover, #remenEditModal .table-wrap::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.25); }
-                #hotEditModal .table-indicator, #remenEditModal .table-indicator { position:absolute; left:2px; top:0; width:calc(100% - 4px); height:0; border-radius:0; background:rgba(228,57,60,0.12); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid rgba(255,100,100,0.4); box-shadow:none; transition:top 0.55s cubic-bezier(0.33,0,0.67,1),height 0.55s cubic-bezier(0.33,0,0.67,1); pointer-events:none; z-index:0; opacity:0; }
-                #hotEditModal .songs-table, #remenEditModal .songs-table { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; position:relative; z-index:1; }
-                #hotEditModal .songs-table th, #remenEditModal .songs-table th { padding:12px 6px; font-size:16px; text-align:left; color:rgba(255,255,255,0.55); font-weight:normal; border-bottom:1px solid rgba(255,255,255,0.1); vertical-align:middle; }
-                #hotEditModal .songs-table td, #remenEditModal .songs-table td { padding:12px 6px; font-size:15px; text-align:left; color:#fff; border-bottom:1px solid rgba(255,255,255,0.05); }
-                #hotEditModal .songs-table tr:last-child td, #remenEditModal .songs-table tr:last-child td { border-bottom:none; }
-                #hotEditModal .song-row, #remenEditModal .song-row { cursor:pointer; transition:background-color 0.15s,box-shadow 0.15s; border-radius:0; margin:2px 0; border:1px solid transparent; }
-                #hotEditModal .song-row:hover, #remenEditModal .song-row:hover { background-color:rgba(255,255,255,0.08); box-shadow:0 4px 15px rgba(0,0,0,0.2); border-color:rgba(255,255,255,0.1); }
-                #hotEditModal .song-name, #remenEditModal .song-name { color:#fff; font-weight:500; }
-            </style>
-
-            <!-- 添加区域 -->
-            <div style="background:rgba(255,255,255,0.03);border-radius:14px;padding:16px 20px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.06);">
-                <div style="display:flex;align-items:end;gap:12px;">
-                    <input type="text" id="newSingerName" placeholder="歌手名" style="flex:2;min-width:120px;padding:10px 16px;border-radius:22px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:14px;outline:none;">
-                    <input type="number" id="newSingerFans" placeholder="粉丝(w)" step="0.1" style="flex:1;min-width:80px;padding:10px 16px;border-radius:22px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:14px;outline:none;-moz-appearance:textfield;" onkeydown="if(event.key==='ArrowUp'||event.key==='ArrowDown')event.preventDefault()">
-                    <input type="text" id="newSingerCountry" placeholder="国籍" style="flex:1;min-width:70px;padding:10px 16px;border-radius:22px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:14px;outline:none;">
-                    <div style="position:relative;flex:0.8;min-width:70px;">
-                        <div id="genderDropdown" style="position:relative;padding:10px 32px 10px 16px;border-radius:22px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:14px;cursor:pointer;user-select:none;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'">
-                            <span id="genderDisplay">男</span><span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.7);font-size:10px;pointer-events:none;">▼</span>
-                        </div>
-                        <div style="display:none;position:absolute;top:100%;left:0;margin-top:4px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:rgba(30,30,30,0.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);overflow:hidden;z-index:10;box-shadow:0 6px 20px rgba(0,0,0,0.3);min-width:80px;">
-                            <div onclick="event.stopPropagation();document.getElementById('genderDisplay').textContent='男';document.getElementById('newSingerGenderVal').value='male';this.parentElement.style.display='none';" style="padding:10px 16px;color:#fff;font-size:14px;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">男</div>
-                            <div onclick="event.stopPropagation();document.getElementById('genderDisplay').textContent='女';document.getElementById('newSingerGenderVal').value='female';this.parentElement.style.display='none';" style="padding:10px 16px;color:#fff;font-size:14px;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">女</div>
-                        </div>
-                        <input type="hidden" id="newSingerGenderVal" value="male">
-                    </div>
-                </div>
-                <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
-                    <input type="file" id="newSingerImage" accept="image/*" style="flex:4;min-width:120px;padding:9px 10px;border-radius:22px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:13px;outline:none;">
-                    <span id="singerImagePreview" style="color:rgba(255,255,255,0.7);font-size:13px;margin-left:20px;">未选择文件</span>
-                    <span style="flex:1;"></span>
-                    <button id="addSingerBtn" style="padding:10px 80px;font-size:16px;border-radius:22px;border:1px solid rgba(228,57,60,0.35);background:rgba(228,57,60,0.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;cursor:pointer;font-weight:600;white-space:nowrap;box-shadow:0 2px 12px rgba(228,57,60,0.15);">+ 添加</button>
-                </div>
-            </div>
-
-            <!-- 歌手列表区域（flex 列布局，分页固定在底部） -->
-            <div style="flex:1;min-height:0;display:flex;flex-direction:column;">
-                <div class="table-wrap" id="singerTableWrap" style="position:relative;flex:1;min-height:0;overflow-y:auto;">
-                    <div class="table-indicator" id="singerTableIndicator"></div>
-                    <table class="songs-table">
-                        <thead><tr>
-                            <th style="width:56px;text-align:center;">头像</th>
-                            <th style="text-align:left;padding-left:30px;">歌手</th>
-                            <th style="text-align:right;padding-right:20px;">粉丝</th>
-                            <th style="text-align:right;padding-right:30px;">国籍</th>
-                            <th style="width:160px;text-align:center;">操作</th>
-                        </tr></thead>
-                        <tbody id="singerEditBody">
-                            <tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">加载中...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="pagination" id="singerPag" style="display:none;">
-                    <div class="pagination-indicator" id="singerPagIndicator"></div>
-                    <button class="pagination-btn" id="singerPrevPage" disabled>上一页</button>
-                    <span class="pagination-info" id="singerEditPageInfo">第 1 页 / 共 1 页</span>
-                    <button class="pagination-btn" id="singerNextPage" disabled>下一页</button>
-                </div>
-            </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================== 模块：专辑编辑弹窗（管理员） ========================== -->
-    <div class="modal-mask" id="albumEditModal">
-        <div class="modal-container settings-modal-container" style="display:flex;flex-direction:column;">
-            <span class="close-btn" id="closeAlbumEditBtn">&times;</span>
-            <h2 class="modal-title">专辑管理</h2>
-            <style>
-                #newAlbumImage::file-selector-button {
-                    padding:6px 14px; border-radius:18px; border:1px solid rgba(255,255,255,0.15);
-                    background:rgba(255,255,255,0.08); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
-                    color:#fff; cursor:pointer; font-size:11px; font-weight:500; margin-right:6px;
-                    transition:all 0.25s;
-                }
-                #newAlbumImage::file-selector-button:hover { background:rgba(255,255,255,0.15); }
-                /* ══════════ 专辑编辑表格样式（复刻歌手表格） ══════════ */
-                #albumEditModal .table-wrap { position:relative; flex:1; min-height:0; }
-                #albumEditModal .table-indicator { position:absolute; left:2px; top:0; width:calc(100% - 4px); height:0; border-radius:0; background:rgba(228,57,60,0.12); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid rgba(255,100,100,0.4); box-shadow:none; transition:top 0.55s cubic-bezier(0.33,0,0.67,1),height 0.55s cubic-bezier(0.33,0,0.67,1); pointer-events:none; z-index:0; opacity:0; }
-                #albumEditModal .songs-table { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; position:relative; z-index:1; }
-                #albumEditModal .songs-table th { padding:12px 6px; font-size:16px; text-align:left; color:rgba(255,255,255,0.55); font-weight:normal; border-bottom:1px solid rgba(255,255,255,0.1); vertical-align:middle; }
-                #albumEditModal .songs-table td { padding:12px 6px; font-size:15px; text-align:left; color:#fff; border-bottom:1px solid rgba(255,255,255,0.05); }
-                #albumEditModal .songs-table tr:last-child td { border-bottom:none; }
-                #albumEditModal .song-row { cursor:pointer; transition:background-color 0.15s,box-shadow 0.15s; border-radius:0; margin:2px 0; border:1px solid transparent; }
-                #albumEditModal .song-row:hover { background-color:rgba(255,255,255,0.08); box-shadow:0 4px 15px rgba(0,0,0,0.2); border-color:rgba(255,255,255,0.1); }
-                #albumEditModal .song-name { color:#fff; font-weight:500; }
-                #albumEditModal .album-text { color:rgba(255,255,255,0.55); font-size:14px; }
-                #albumEditModal .pagination { display:flex; justify-content:center; align-items:center; gap:8px; margin-top:auto; padding:8px 0 4px; position:relative; }
-                #albumEditModal .pagination-indicator { position:absolute; top:8px; left:0; height:calc(100% - 12px); border-radius:20px; background:rgba(228,57,60,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border:1px solid rgba(255,100,100,0.4); box-shadow:0 2px 16px rgba(228,57,60,0.3); transition:left 0.55s cubic-bezier(0.33,0,0.67,1),width 0.55s cubic-bezier(0.33,0,0.67,1); pointer-events:none; z-index:0; }
-                #albumEditModal .pagination-btn { padding:6px 20px; border-radius:20px; border:1px solid transparent; background:transparent; color:rgba(255,255,255,0.65); cursor:pointer; font-size:15px; font-weight:500; transition:color 0.35s; position:relative; z-index:1; }
-                #albumEditModal .pagination-btn:hover { color:#fff; }
-                #albumEditModal .pagination-btn:disabled { cursor:not-allowed; opacity:0.3; }
-                #albumEditModal .pagination-info { color:rgba(255,255,255,0.85); font-size:14px; min-width:100px; text-align:center; position:relative; z-index:1; }
-                #albumEditModal input::placeholder { color:rgba(255,255,255,0.5); }
-                #albumEditModal input { color:#fff; }
-                /* 编辑/刷新按钮组滑动指示器 */
-                .section-btn-group { position:relative; display:inline-flex; gap:8px; margin-left:12px; }
-                .section-btn-group.align-right { margin-left:auto; }
-                .btn-slide-indicator { position:absolute; top:0; left:0; height:100%; border-radius:24px; background:rgba(228,57,60,0.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border:1px solid rgba(255,100,100,0.4); box-shadow:0 2px 16px rgba(228,57,60,0.3); transition:left 0.55s cubic-bezier(0.33,0,0.67,1),width 0.55s cubic-bezier(0.33,0,0.67,1); pointer-events:none; z-index:0; }
-                .section-btn-group .hot-edit-page-btn { position:relative; z-index:1; margin-left:0 !important; }
-            </style>
-            <div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:14px 16px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.06);">
-                <div style="display:flex;align-items:end;gap:10px;flex-wrap:wrap;">
-                    <input type="text" id="newAlbumName" placeholder="专辑名" style="flex:2;min-width:120px;padding:10px 16px;border-radius:22px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);color:#fff;font-size:14px;outline:none;">
-                    <input type="text" id="newAlbumSinger" placeholder="歌手名" style="flex:1;min-width:100px;padding:10px 16px;border-radius:22px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);color:#fff;font-size:14px;outline:none;">
-                    <input type="number" id="newAlbumPrice" placeholder="价格" step="0.01" style="width:90px;padding:10px 16px;border-radius:22px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);color:#fff;font-size:14px;outline:none;-moz-appearance:textfield;">
-                </div>
-                <div style="display:flex;align-items:center;gap:10px;margin-top:12px;">
-                    <input type="file" id="newAlbumImage" accept="image/*" style="flex:4;min-width:140px;padding:9px 10px;border-radius:22px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:13px;outline:none;">
-                    <span id="albumImagePreview" style="color:rgba(255,255,255,0.7);font-size:13px;margin-left:20px;">未选择文件</span>
-                    <span style="flex:1;"></span>
-                    <button id="addAlbumBtn" style="padding:10px 28px;font-size:14px;border-radius:22px;border:1px solid rgba(228,57,60,0.35);background:rgba(228,57,60,0.18);backdrop-filter:blur(10px);color:#fff;cursor:pointer;font-weight:600;white-space:nowrap;box-shadow:0 2px 12px rgba(228,57,60,0.15);">+ 添加</button>
-                </div>
-            </div>
-            <div style="flex:1;min-height:0;display:flex;flex-direction:column;">
-                <div class="table-wrap" id="albumTableWrap" style="position:relative;flex:1;min-height:0;overflow-y:auto;">
-                    <div class="table-indicator" id="albumTableIndicator"></div>
-                    <table class="songs-table">
-                        <thead><tr>
-                            <th style="width:56px;text-align:center;">封面</th>
-                            <th style="width:230px;text-align:center;">专辑名</th>
-                            <th style="width:100px;">歌手</th>
-                            <th style="width:50px;">价格</th>
-                            <th style="width:120px;text-align:center;">操作</th>
-                        </tr></thead>
-                        <tbody id="albumEditBody">
-                            <tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">加载中...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="pagination" id="albumEditPag" style="display:none;">
-                    <div class="pagination-indicator" id="albumEditPagIndicator"></div>
-                    <button class="pagination-btn" id="albumEditPrev" disabled>上一页</button>
-                    <span class="pagination-info" id="albumEditPageInfo">第 1 页 / 共 1 页</span>
-                    <button class="pagination-btn" id="albumEditNext" disabled>下一页</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- 通用提示弹窗（#alertModal）已删除：showAlert 统一走黑胶囊 toast（common/toast.js） -->
 
     <!-- ========================== 模块：播放列表弹窗 ========================== -->
+    <!-- .modal-layer：定位层。底部永远让出播放条（歌词展开时自动让更多），
+         弹窗因此随播放条同步上滑，不会被压住。详见 css/index.css 末尾说明。 -->
     <div class="modal-mask" id="playlistModal">
-        <div class="modal-container playlist-modal-container">
-            <span class="close-btn" id="closePlaylistBtn"><i class="fa-solid fa-xmark"></i></span>
-            <iframe src="html/playerlist.html" class="playlist-iframe"></iframe>
+        <div class="modal-layer">
+            <div class="modal-container playlist-modal-container">
+                <span class="close-btn" id="closePlaylistBtn"><i class="fa-solid fa-xmark"></i></span>
+                <iframe src="html/playerlist.html" class="playlist-iframe"></iframe>
+            </div>
         </div>
     </div>
 
     <!-- ========================== 模块：我的收藏弹窗 ========================== -->
     <div class="modal-mask" id="favoritesModal">
-        <div class="modal-container playlist-modal-container">
-            <span class="close-btn" id="closeFavoritesBtn"><i class="fa-solid fa-xmark"></i></span>
-            <iframe src="html/favorite.html" class="playlist-iframe"></iframe>
+        <div class="modal-layer">
+            <div class="modal-container playlist-modal-container">
+                <span class="close-btn" id="closeFavoritesBtn"><i class="fa-solid fa-xmark"></i></span>
+                <iframe src="html/favorite.html" class="playlist-iframe"></iframe>
+            </div>
         </div>
     </div>
 
     <!-- ========================== 模块：歌手详情弹窗 ========================== -->
+    <!-- 与歌单类弹窗一致：.modal-layer 让出底部播放条，歌词展开时随播放条同步上滑 -->
     <div class="modal-mask" id="singerModal">
-        <div class="modal-container large-modal-container">
-            <span class="close-btn" id="closeSingerBtn"><i class="fa-solid fa-xmark"></i></span>
-            <iframe src="html/artistpage.html" style="width: 100%; height: 100%; border: none;"></iframe>
+        <div class="modal-layer">
+            <div class="modal-container large-modal-container">
+                <span class="close-btn" id="closeSingerBtn"><i class="fa-solid fa-xmark"></i></span>
+                <iframe src="html/artistpage.html" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
         </div>
     </div>
 
     <!-- ========================== 模块：历史播放弹窗 ========================== -->
     <div class="modal-mask" id="historyModal">
-        <div class="modal-container playlist-modal-container">
-            <span class="close-btn" id="closeHistoryBtn"><i class="fa-solid fa-xmark"></i></span>
-            <iframe src="html/played.html" class="playlist-iframe"></iframe>
-        </div>
-    </div>
-
-    <!-- ========================== 模块：专辑详情弹窗 ========================== -->
-    <div class="modal-mask" id="albumDetailModal">
-        <div class="modal-container album-detail-container">
-            <span class="close-btn" id="closeAlbumDetailBtn"><i class="fa-solid fa-xmark"></i></span>
-            <div class="album-detail-content">
-                <div class="album-detail-left">
-                    <img id="detailAlbumCover" src="" alt="专辑封面">
-                </div>
-                <div class="album-detail-right">
-                    <h2 id="detailAlbumTitle">专辑名称</h2>
-                    <div class="album-detail-info">
-                        <p><strong>歌手：</strong><span id="detailAlbumArtist">歌手名称</span></p>
-                        <p><strong>价格：</strong><span id="detailAlbumPrice">¥0.00</span></p>
-                        <p><strong>发行时间：</strong><span>2025-12-25</span></p>
-                        <p><strong>专辑类型：</strong><span>数字专辑</span></p>
-                    </div>
-                    <div class="album-detail-desc">
-                        <h3>专辑简介</h3>
-                        <p>这是一张非常精彩的音乐专辑，包含了多首脍炙人口的热门金曲。每一首歌都经过精心打磨，展现了歌手独特的艺术魅力和深厚的音乐功底。无论是旋律还是歌词，都充满了感染力，带给听众极致的视听享受。</p>
-                    </div>
-                    <div class="album-detail-actions" style="display:flex;align-items:center;gap:16px;">
-                        <span style="color:rgba(255,255,255,0.5);font-size:14px;">购买数量</span>
-                        <button onclick="changeBuyQty(-1)" style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,0.2);background:transparent;color:#fff;cursor:pointer;font-size:16px;line-height:1;">−</button>
-                        <span id="buyQtyDisplay" style="font-size:18px;font-weight:600;color:#fff;min-width:30px;text-align:center;">1</span>
-                        <button onclick="changeBuyQty(1)" style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,0.2);background:transparent;color:#fff;cursor:pointer;font-size:16px;line-height:1;">+</button>
-                        <button class="buy-btn-large" id="detailBuyBtn" style="margin-left:12px;"><i class="fas fa-shopping-cart"></i> 确认购买</button>
-                    </div>
-                    <input type="hidden" id="buyQty" value="1">
-                </div>
+        <div class="modal-layer">
+            <div class="modal-container playlist-modal-container">
+                <span class="close-btn" id="closeHistoryBtn"><i class="fa-solid fa-xmark"></i></span>
+                <iframe src="html/played.html" class="playlist-iframe"></iframe>
             </div>
         </div>
     </div>
 
-    <!-- 底部音乐播放条 -->
-    <div class="player-bar">
+    <!-- ========================== 模块：专辑详情弹窗 ========================== -->
+    <!-- ========================== 模块：专辑详情弹窗 ========================== -->
+    <!-- 与歌手详情弹窗同一套结构：点击专辑封面打开（需先购买专辑），
+         iframe 内是 html/albumpage.html（专辑信息 + 歌曲表 + 未购买遮罩） -->
+    <div class="modal-mask" id="albumDetailModal">
+        <div class="modal-layer">
+            <div class="modal-container large-modal-container">
+                <span class="close-btn" id="closeAlbumDetailBtn"><i class="fa-solid fa-xmark"></i></span>
+                <iframe src="html/albumpage.html" class="album-iframe"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部音乐播放条（点击「词」按钮，播放条向上展开，歌词显示在播放器下方） -->
+    <div class="player-bar" id="playerBar">
+        <!-- 播放条主体（一行）：歌曲信息 / 进度 / 控制按钮 -->
+        <div class="player-main">
         <!-- 左侧：操作图标 + 歌曲标题 -->
         <div class="player-left">
             <div class="player-icons">
@@ -1141,6 +715,9 @@
                 暂无歌曲 请手动添加~
             </div>
         </div>
+
+        <!-- 歌词按钮：位于进度条左侧，点击展开/收起播放条歌词区 -->
+        <span class="lyrics-btn" id="playerLyricsBtn" title="歌词">词</span>
 
         <!-- 中间：进度条 + 时间显示 -->
         <div class="player-progress">
@@ -1155,11 +732,11 @@
 
         <!-- 右侧：播放控制按钮 -->
         <div class="player-controls">
-            <i class="fa-solid fa-step-backward control-btn" id="playerPrevBtn" style="margin-right: 3px;" title="上一首"></i>
+            <i class="fa-solid fa-step-backward control-btn" id="playerPrevBtn" title="上一首"></i>
             <div class="play-btn-circle" id="playerPlayBtn" style="padding-left: 2px;" title="播放音乐">
                 <i class="fa-solid fa-play"></i>
             </div>
-            <i class="fa-solid fa-step-forward control-btn" id="playerNextBtn" style="margin-left: 7px;" title="下一首"></i>
+            <i class="fa-solid fa-step-forward control-btn" id="playerNextBtn" title="下一首"></i>
             <div class="volume-container">
                 <i class="fa-solid fa-volume-up control-btn" id="playerVolumeBtn" title="音量"></i>
                 <div class="player-volume-panel" id="playerVolumePanel">
@@ -1173,15 +750,31 @@
             <i class="fa-solid fa-list control-btn" id="playerPlaylistBtn" title="当前播放列表"></i>
         </div>
 
-        <!-- 最右侧：音质标签 + 功能图标 -->
+        <!-- 最右侧：音质标签 + 关闭按钮 -->
         <div class="player-right">
             <span class="hq-tag" style="display: none;">HQ</span>
-            <i class="fa-solid fa-angles-down" id="playerHideBtn" style="cursor: pointer; font-size: 20px; margin-left: 1px;" title="隐藏"></i>
+            <i class="fa-solid fa-xmark" id="playerHideBtn" title="关闭"></i>
+        </div>
+        </div><!-- /.player-main -->
+
+        <!-- 歌词区：展开后出现在播放条下方（左侧歌曲封面 + 固定 3 行歌词窗口） -->
+        <div class="player-lyrics" id="playerLyricsPanel">
+            <!-- 歌曲封面（对齐在歌名下方） -->
+            <div class="player-cover is-empty" id="playerCover">
+                <img id="playerCoverImg" alt="歌曲封面">
+                <i class="fa-solid fa-music player-cover-ph"></i>
+            </div>
+            <div class="lyrics-scroll" id="lyricsScroll">
+                <div class="lyrics-inner" id="lyricsInner">
+                    <div class="lyrics-empty">点击播放歌曲后显示歌词~</div>
+                </div>
+            </div>
+            <!-- 提示：右下角 -->
+            <div class="lyrics-hint">点击歌词可跳转播放位置</div>
         </div>
     </div>
 
     <!-- 提示弹窗 -->
-    <div class="player-toast" id="playerToast"></div>
 
     <!-- 右侧固定悬浮按钮组 -->
     <div class="side-action-buttons">
@@ -1204,9 +797,19 @@
         <img src="背景/光感.webp" alt="" class="bg-record">
     </div>
 
-    <!-- 引入Bootstrap JS（实现轮播交互） -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- 引入自定义JS文件 -->
-    <script src="js/index.js"></script>
+    <!-- 引入自定义JS文件（模块化拆分，按依赖顺序加载；00-api 为统一 API 层须最先加载，其余保持原 index.js 内部顺序） -->
+    <script src="js/modules/00-api.js?v=2"></script>
+    <script src="js/common/toast.js?v=1"></script>
+    <script src="js/modules/01-guard-and-data.js?v=4"></script>
+    <script src="js/modules/05-page-features.js?v=5"></script>
+    <script src="js/modules/07-admin-core.js?v=7"></script>
+    <script src="js/modules/09-music-manage.js?v=8"></script>
+    <script src="js/modules/10-auth.js?v=2"></script>
+    <script src="js/modules/11-carousels.js?v=2"></script>
+    <script src="js/modules/12-page-init.js?v=8"></script>
+    <script src="js/modules/13-player.js?v=7"></script>
+    <script src="js/modules/14-search.js?v=2"></script>
+    <script src="js/modules/15-lyrics.js?v=5"></script>
+    <script src="js/modules/16-cover.js?v=1"></script>
 </body>
 </html>

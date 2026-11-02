@@ -1,6 +1,5 @@
 const playlist = document.getElementById('playlist');
 const clearBtn = document.getElementById('clearBtn');
-const toast = document.getElementById('toast');
 
 // 初始化 IntersectionObserver 用于入场动画
 const revealObserver = new IntersectionObserver((entries) => {
@@ -68,21 +67,6 @@ window.addHistoryFromExternal = function(data) {
 };
 
 window.addEventListener('DOMContentLoaded', initReveal);
-
-
-function showToast(message) {
-    // 优先使用父窗口的提示函数，确保提示框在屏幕中心
-    if (window.parent && typeof window.parent.showPlayerToast === 'function') {
-        window.parent.showPlayerToast(message);
-        return;
-    }
-
-    if (toast) {
-        toast.textContent = message;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2000);
-    }
-}
 
 // 暴露给外部调用的函数
 window.updatePlayingStatus = updatePlayingStatus;

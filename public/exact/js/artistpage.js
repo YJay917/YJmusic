@@ -34,22 +34,6 @@ function getAvatarFromUrl() {
 var currentSingerName = getSingerNameFromUrl();
 
 // 显示提示弹窗函数
-function showToast(message) {
-    if (window.parent && typeof window.parent.showPlayerToast === 'function') {
-        window.parent.showPlayerToast(message);
-        return;
-    }
-    var toast = document.getElementById('toast');
-    if (!toast) return;
-    toast.textContent = message;
-    toast.classList.add('show');
-    setTimeout(function() { toast.classList.remove('show'); }, 2000);
-}
-
-// 获取歌手名（供外部调用）
-function getSingerName() {
-    return currentSingerName;
-}
 
 // 从数据库获取的歌手头像（优先使用）
 var dbImagePath = null;
@@ -192,8 +176,8 @@ function renderPage() {
     pageSongs.forEach(function(song, i) {
         var idx = start + i;
         var title = song.musicName || song.music_name || '';
-        var album = song.album || '—';
-        var duration = formatDuration(song.duration || 240);
+        var album = song.albumName || song.album_name || song.album || "—";
+        var duration = formatDuration(song.duration);
         var tag = tags[idx % tags.length];
         html += '<tr class="song-row">';
         html += '<td class="col-heart"><span class="heart-icon" title="收藏"><i class="fa-solid fa-heart"></i></span></td>';
@@ -245,9 +229,14 @@ function escHtml(s) {
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function formatDuration(seconds) {
-    var m = Math.floor(seconds / 60);
-    var s = Math.floor(seconds % 60);
+function formatDuration(value) {
+    // 时长来自数据库的 "mm:ss" 字符串（MP3 帧头解析入库）；
+    // 纯数字视为旧的「秒」格式，兜底兼容；缺失/非法返回 00:00
+    if (typeof value === 'string' && value.indexOf(':') !== -1) return value;
+    var n = Number(value);
+    if (!isFinite(n) || n <= 0) return '00:00';
+    var m = Math.floor(n / 60);
+    var s = Math.floor(n % 60);
     return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
 }
 

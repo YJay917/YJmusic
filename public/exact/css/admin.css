@@ -1,0 +1,1849 @@
+/* ============================================================================
+   YJayMusic 后台管理 - 样式（与前台视觉统一）
+   ----------------------------------------------------------------------------
+   参数来源：
+     · 玻璃拟态弹窗  → 前台 css/index.css  .modal-container / .form-item
+     · 管理表格      → 前台 index.html 内联样式  .songs-table（滑动高亮框已移除）
+     · 分页 / 按钮   → 前台 .action-btn-small / .hot-edit-page-btn（分页指示器已移除）
+     · 背景          → 前台 body 用的同一张 背景.png，叠加深色遮罩保证可读性
+   ========================================================================== */
+
+:root {
+    /* 关键：告诉浏览器整页是深色主题。
+       不写这行，<select> 展开的原生弹层会按系统浅色渲染
+       （白底 + 蓝色高亮），下面给 option 写的深色配色全被忽略。 */
+    color-scheme: dark;
+
+    /* 前台主色 */
+    --c-primary: #e4393c;
+    --c-primary-rgb: 228, 57, 60;
+    --c-danger: #ff4d4f;
+
+    /* ── 背景（想调浓淡就改这几个值）────────────────────────────
+       复用前台那张背景图，上面叠一层深色遮罩（保证内容可读）+ 两团柔光。
+       柔光刻意压得比较低：弹窗遮罩带 saturate(150%)，彩色光晕过强
+       在模糊后会显成明显的色斑。 */
+    --bg-veil-top: 0.80;        /* 深色遮罩：顶部不透明度 */
+    --bg-veil-mid: 0.90;        /* 深色遮罩：中部 */
+    --bg-veil-bottom: 0.95;     /* 深色遮罩：底部（越往下越暗） */
+    --bg-glow-red: 0.13;        /* 左上角红色柔光强度 */
+    --bg-glow-white: 0.045;     /* 右上角白色微光强度 */
+
+    /* ── 弹窗遮罩 + 卡片（全部取自前台 index.css 的实际生效值）──────
+       前台有两条 .modal-mask.show，第二条带 !important 生效：
+           background-color: rgba(0,0,0,0.5) !important;
+           backdrop-filter: blur(10px) saturate(150%) !important;
+       这里的 saturate 就是你说的"发亮"效果 —— 前台确实是这样。
+       （之前在我这儿显成色斑，是因为后台背景多叠了红/白柔光，
+         柔光被饱和度放大所致。现已把背景也改回前台的写法。） */
+    --mask-bg: rgba(0, 0, 0, 0.5);          /* 前台 .modal-mask.show */
+    --mask-blur: 10px;                       /* 前台：blur(10px) */
+    --mask-saturate: 150%;                   /* 前台：saturate(150%) */
+    --mask-fade: 0.3s;                       /* 前台：transition 0.3s ease-out */
+
+    /* ══════════════════════════════════════════════════════════════════
+       磨砂强度一览（backdrop blur）—— 想整体调浓/调淡就改下面这些数
+       ------------------------------------------------------------------
+       数值越大 → 玻璃越"磨砂"、越看不清背后的背景图，文字对比度越高。
+
+         .sidebar         36px   侧栏
+         .panel           36px   主面板（每个模块的内容卡片）★
+         .stat-card       36px   概览卡片 ★
+         .chart-block     32px   榜单里的次级格子
+         弹窗卡片          36px   = --card-blur
+         .toast           32px   提示条
+         .action-btn-small 16px  表格里的小按钮
+         .side-indicator  18px   侧栏选中框
+         .btn             18px   普通按钮
+         .side-btn        14px   侧栏底部按钮
+         .input/.select   12px   输入框 / 下拉
+         .glow-btn        12px   ＋新增 / 刷新
+       前置的 -webkit-backdrop-filter 与它保持同一个值。
+       ══════════════════════════════════════════════════════════════════ */
+
+    /* 卡片（前台 .modal-container） */
+    --card-bg: rgba(255, 255, 255, 0.08);
+    --card-blur: 36px;
+    --card-saturate: 180%;
+    --card-border: rgba(255, 255, 255, 0.18);
+    --card-glow: 0.08;
+
+    /* 登录卡片（前台 #loginModal .modal-container，玻璃更强） */
+    --card-bg-strong: rgba(255, 255, 255, 0.07);
+    --card-blur-strong: 40px;
+    --card-saturate-strong: 200%;
+    --card-border-strong: rgba(255, 255, 255, 0.22);
+
+    --c-text: #fff;
+    --c-text-sub: rgba(255, 255, 255, 0.85);
+    --c-text-dim: rgba(255, 255, 255, 0.55);
+    --c-line: rgba(255, 255, 255, 0.1);
+
+    --sidebar-w: 224px;
+
+    --radius-modal: 24px;
+    /* 卡片圆角：与前台「个人设置」弹窗里的 .settings-card 一致（16px，
+       比弹窗的 24px 小一档，看着更"嵌进去"） */
+    --radius-card: 16px;
+    --radius-btn: 22px;
+    --radius-input: 10px;
+
+    --font: "PingFang SC", "Microsoft YaHei", "微软雅黑", sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ==========================================================================
+   背景：前台那张背景图 + 深色遮罩 + 两团柔光（fixed + cover，整页一致）
+   --------------------------------------------------------------------------
+   为什么用 fixed + cover 而不是前台的 120% auto + scroll：
+     后台有长表格，页面很高。用 scroll 时背景图只有顶部那么高，
+     往下滚就会露出纯色底，出现一条明显的分界线。
+     fixed + cover 让背景始终铺满整个视口，滚动时也不动。
+   图片实际尺寸 1200 × 2597（且它其实是 WebP，只是扩展名写成了 .png）。
+   ========================================================================== */
+body {
+    font-family: var(--font);
+    color: var(--c-text);
+    min-height: 100vh;
+    font-size: 14px;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+
+    background-color: #0a0a0c;      /* 图未铺满时的兜底底色 */
+    background-image:
+        linear-gradient(180deg,
+            rgba(8, 8, 10, var(--bg-veil-top)) 0%,
+            rgba(8, 8, 10, var(--bg-veil-mid)) 45%,
+            rgba(8, 8, 10, var(--bg-veil-bottom)) 100%),
+        radial-gradient(1100px 600px at 14% -6%,
+            rgba(var(--c-primary-rgb), var(--bg-glow-red)), transparent 62%),
+        radial-gradient(900px 520px at 96% 4%,
+            rgba(255, 255, 255, var(--bg-glow-white)), transparent 58%),
+        url("../背景/背景.png");
+    background-size: auto, auto, auto, cover;
+    background-position: center, center, center, center top;
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+    background-attachment: fixed, fixed, fixed, fixed;
+
+    /* 页面淡入（与前台 body 同一条动画） */
+    animation: bodyFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes bodyFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ==========================================================================
+   动效：逐条入场（前台 .reveal 的视觉效果，但改用 animation 实现）
+   --------------------------------------------------------------------------
+   为什么不用前台的 transition 版本：.stat-card / .panel 自己带
+   `transition: all`，两条单类选择器会互相覆盖 —— 既可能吃掉入场动画，
+   也可能把鼠标悬浮的上浮效果弄没。
+   改成 animation 后：
+     · 延迟期间由 backwards 保持隐藏（对应前台 .reveal 的 opacity:0）
+     · 动画结束后自动交还给元素自身样式，hover 的 transform 照常工作
+   ========================================================================== */
+@keyframes revealIn {
+    from { opacity: 0; transform: translateY(8px) translateZ(0); }
+    to   { opacity: 1; transform: translate(0, 0) translateZ(0); }
+}
+
+.reveal {
+    animation: revealIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) backwards;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+}
+
+/* 只淡入、不位移的版本 —— 给表格行用。
+   因为表格行高亮的坐标是 getBoundingClientRect() 量出来的，
+   行上如果有 transform，动画期间量出来会偏移，高亮框会对不准。 */
+@keyframes revealFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.reveal-fade {
+    animation: revealFadeIn 0.35s ease backwards;
+}
+
+/* 延迟类同时给出 transition-delay 与 animation-delay，两种实现都能用 */
+.delay-100 { transition-delay: 40ms !important;  animation-delay: 40ms !important; }
+.delay-200 { transition-delay: 80ms !important;  animation-delay: 80ms !important; }
+.delay-300 { transition-delay: 120ms !important; animation-delay: 120ms !important; }
+.delay-400 { transition-delay: 160ms !important; animation-delay: 160ms !important; }
+.delay-500 { transition-delay: 200ms !important; animation-delay: 200ms !important; }
+.delay-600 { transition-delay: 240ms !important; animation-delay: 240ms !important; }
+.delay-700 { transition-delay: 280ms !important; animation-delay: 280ms !important; }
+.delay-800 { transition-delay: 320ms !important; animation-delay: 320ms !important; }
+
+/* 加载转圈（与前台同名的 keyframes） */
+@keyframes loaderSpin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes loaderPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50%      { transform: scale(1.05) translateZ(0); opacity: 1; }
+}
+
+button { font-family: inherit; cursor: pointer; }
+input, select { font-family: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* ==========================================================================
+   一、左侧导航栏
+   ========================================================================== */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 300;
+
+    background: rgba(18, 18, 22, 0.62);
+    backdrop-filter: blur(36px) saturate(180%);
+    -webkit-backdrop-filter: blur(36px) saturate(180%);
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 8px 0 40px rgba(0, 0, 0, 0.45);
+}
+
+.brand {
+    padding: 22px 20px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.3s ease;
+    flex-shrink: 0;
+}
+
+.brand i {
+    font-size: 22px;
+    color: var(--c-primary);
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+body:not(.no-motion) .brand:hover i { transform: scale(1.15) rotate(90deg); }
+
+.brand small {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--c-text-dim);
+    letter-spacing: 0;
+    margin-top: 3px;
+}
+
+/* 导航容器 + 竖向滑动指示器 */
+.side-nav {
+    position: relative;
+    padding: 14px 12px;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+.side-nav::-webkit-scrollbar { width: 4px; }
+.side-nav::-webkit-scrollbar-track { background: transparent; }
+.side-nav::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 3px; }
+
+.side-indicator {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: 0;
+    height: 0;
+    border-radius: 12px;
+    background: rgba(var(--c-primary-rgb), 0.16);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1.5px solid rgba(var(--c-primary-rgb), 0.5);
+    box-shadow: 0 0 20px rgba(var(--c-primary-rgb), 0.25), 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: top 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+                height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+}
+
+.side-item {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 11px 14px;
+    margin-bottom: 4px;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.3s ease;
+    white-space: nowrap;
+}
+
+.side-item i { width: 18px; text-align: center; font-size: 15px; }
+body:not(.no-motion) .side-item:hover { color: #fff; transform: translateX(3px); }
+.side-item.active { color: #fff; font-weight: 700; }
+
+.side-foot {
+    padding: 14px 12px 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.who {
+    font-size: 12.5px;
+    color: var(--c-text-dim);
+    margin-bottom: 10px;
+    padding: 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.who b { color: var(--c-primary); font-weight: 600; }
+
+.side-btn {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    height: 38px;
+    padding: 0 14px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    text-align: left;
+}
+
+.side-btn i { font-size: 13px; width: 15px; text-align: center; }
+
+body:not(.no-motion) .side-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+    transform: translateX(3px);
+}
+
+body:not(.no-motion) .side-btn:active { transform: scale(0.97); }
+
+.side-btn.danger-btn {
+    background: rgba(255, 77, 79, 0.16) !important;
+    border-color: rgba(255, 77, 79, 0.32) !important;
+    color: #ff8a8c !important;
+}
+
+body:not(.no-motion) .side-btn.danger-btn:hover {
+    background: rgba(255, 77, 79, 0.3) !important;
+    border-color: rgba(255, 77, 79, 0.55) !important;
+    color: #fff !important;
+}
+
+/* ==========================================================================
+   二、主内容区
+   ========================================================================== */
+.main {
+    margin-left: var(--sidebar-w);
+    min-height: 100vh;
+}
+
+.content {
+    max-width: 1400px;
+    padding: 30px 36px 70px;
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 22px;
+}
+
+.page-title i { color: var(--c-primary); font-size: 22px; }
+
+.page-title h3 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.page-title .sub {
+    margin-left: auto;
+    font-size: 14px;
+    color: var(--c-text-dim);
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+/* 玻璃面板
+   —— 参数与前台「个人设置」弹窗里的 .settings-card 完全一致：
+      底色 0.05 / 模糊 24px / 饱和 180% / 描边 0.16 / 圆角 16px /
+      内边距 18px 20px / 双层内高光 + 柔和外阴影 */
+.panel {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(36px) saturate(180%);
+    -webkit-backdrop-filter: blur(36px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: var(--radius-card);
+    padding: 18px 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35),
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+                0 1px 0 rgba(255, 255, 255, 0.08) inset;
+}
+
+.panel + .panel { margin-top: 20px; }
+
+.panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.panel-head h3 { font-size: 17px; font-weight: 600; color: #fff; }
+.panel-head .hint { color: var(--c-text-dim); font-size: 13px; }
+
+.toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* 输入框 / 下拉（对齐前台 .form-item input）
+   注意：这里用 background-color 而不是 background 简写 ——
+   简写会把 background-image 一起重置成 none，而下面的 .select 正是靠
+   background-image 画那个自定义箭头的，用简写会把箭头"擦掉"。 */
+.input, .select {
+    padding: 10px 14px;
+    background-color: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-input);
+    font-size: 14px;
+    color: #fff;
+    transition: all 0.3s ease;
+    outline: none;
+    min-width: 0;
+}
+
+.input::placeholder { color: rgba(255, 255, 255, 0.35); }
+
+/* 数字输入框：去掉右侧的上下步进箭头（原生 spinner 与深色主题不搭） */
+input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* 下拉框：去掉系统那个白色三角，换成与主题一致的细箭头 */
+.select {
+    appearance: none;              /* 关键：不写这行，原生箭头一定在 */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 38px;           /* 给箭头让位，长选项文字不会压到箭头上 */
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3.2 5.4 7 9.2l3.8-3.8' fill='none' stroke='%23ffffff' stroke-opacity='.55' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    background-size: 14px 14px;
+}
+
+body:not(.no-motion) .input:hover, body:not(.no-motion) .select:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.04) inset;
+}
+
+.input:focus, .select:focus {
+    border-color: rgba(var(--c-primary-rgb), 0.5);
+    background-color: rgba(var(--c-primary-rgb), 0.08);
+    box-shadow: 0 0 24px rgba(var(--c-primary-rgb), 0.12), 0 0 0 3px rgba(var(--c-primary-rgb), 0.06);
+}
+
+/* 聚焦 / 悬浮时箭头变成主题红（与边框同步，一眼能看出焦点在哪） */
+.select:focus,
+body:not(.no-motion) .select:hover {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3.2 5.4 7 9.2l3.8-3.8' fill='none' stroke='%23e4393c' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* 展开的选项列表：浏览器默认是白底，深色主题下会很刺眼 */
+.select option { background: #1e1e1e; color: #fff; }
+
+/* ==========================================================================
+   三、按钮
+   ========================================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 18px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    white-space: nowrap;
+}
+
+body:not(.no-motion) .btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+    transform: translateY(-2px);
+}
+
+body:not(.no-motion) .btn:active { transform: scale(0.97); transition: transform 0.1s ease; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+.action-btn-small {
+    padding: 7px 16px;
+    border-radius: var(--radius-btn);
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+
+body:not(.no-motion) .action-btn-small:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+    transform: translateY(-2px);
+}
+
+body:not(.no-motion) .action-btn-small:active { transform: scale(0.96); transition: transform 0.1s ease; }
+.action-btn-small + .action-btn-small { margin-left: 8px; }
+
+.danger-btn {
+    background: rgba(255, 77, 79, 0.2) !important;
+    border-color: rgba(255, 77, 79, 0.35) !important;
+    color: #ff6b6b !important;
+    box-shadow: 0 2px 12px rgba(255, 77, 79, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
+}
+
+body:not(.no-motion) .danger-btn:hover {
+    background: rgba(255, 77, 79, 0.38) !important;
+    border-color: rgba(255, 77, 79, 0.55) !important;
+    box-shadow: 0 6px 22px rgba(255, 77, 79, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
+}
+
+.btn-primary {
+    background: rgba(var(--c-primary-rgb), 0.2);
+    border-color: rgba(var(--c-primary-rgb), 0.45);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 2px 14px rgba(var(--c-primary-rgb), 0.18);
+}
+
+body:not(.no-motion) .btn-primary:hover {
+    background: rgba(var(--c-primary-rgb), 0.36);
+    border-color: rgba(var(--c-primary-rgb), 0.7);
+    box-shadow: 0 6px 26px rgba(var(--c-primary-rgb), 0.32);
+}
+
+/* 「＋新增 / 刷新」按钮
+   原本照抄前台的 .hot-edit-page-btn：悬浮时有一个红色发光层（::before）。
+   现按需求**整个删除** —— 不论有没有 no-motion，都不可能再出现红色。 */
+.glow-btn {
+    padding: 9px 26px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-group { position: relative; display: inline-flex; gap: 8px; }
+
+/* 按钮组滑动指示器（.btn-slide-indicator）已按需求移除：
+   那个在「＋新增 / 刷新」之间滑动的红色胶囊属于"触碰产生的位移"。
+   悬浮红色发光（.glow-btn::before）也已一并删除。 */
+
+/* ==========================================================================
+   四、管理表格（照抄前台 .songs-table + .table-indicator）
+   ========================================================================== */
+.table-wrap {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 580px;
+    border-radius: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+.table-wrap::-webkit-scrollbar { width: 5px; height: 5px; }
+.table-wrap::-webkit-scrollbar-track { background: transparent; }
+.table-wrap::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
+.table-wrap::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+
+/* 表格行高亮指示器（.table-indicator）已按需求移除：
+   那个跟着鼠标在行间滑动的红色发光框，而且默认停在表头 ——
+   所以表头一直套着一个红框。现在改为下面的纯 CSS 瞬时底色。 */
+
+.songs-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    position: relative;
+    z-index: 1;
+}
+
+.songs-table th {
+    padding: 12px 10px;
+    font-size: 14px;
+    text-align: left;
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: normal;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.songs-table td {
+    padding: 12px 10px;
+    font-size: 14px;
+    text-align: left;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+}
+
+.songs-table tr:last-child td { border-bottom: none; }
+.songs-table td.col-op, .songs-table th.col-op { text-align: right; white-space: nowrap; }
+.songs-table td.col-center, .songs-table th.col-center { text-align: center; }
+
+/* 无边框、无发光、无过渡的行悬浮底色（替代原来的滑动高亮框） */
+.song-row:hover { background: rgba(255, 255, 255, 0.055); }
+
+.thumb {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: rgba(255, 255, 255, 0.06);
+    display: block;
+}
+
+.path-cell { font-size: 12px; color: rgba(255, 255, 255, 0.5); word-break: break-all; }
+.cell-dim { color: rgba(255, 255, 255, 0.35); }
+
+/* 序号列：等宽数字 + 弱化颜色，只做定位参考，不抢眼 */
+.col-index {
+    display: inline-block;
+    min-width: 1.8em;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.4);
+    font-variant-numeric: tabular-nums;
+}
+
+.badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.badge-admin { color: #ff9a9c; border-color: rgba(var(--c-primary-rgb), 0.45); background: rgba(var(--c-primary-rgb), 0.18); }
+.badge-ok { color: #7ee0a1; border-color: rgba(53, 196, 106, 0.4); background: rgba(53, 196, 106, 0.14); }
+.badge-off { color: rgba(255, 255, 255, 0.45); }
+
+.empty, .loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+}
+
+.empty i { display: block; font-size: 28px; margin-bottom: 12px; opacity: 0.5; }
+
+/* 自定义转圈，避免依赖 Font Awesome 也能转 */
+.loader {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    margin-bottom: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-top-color: var(--c-primary);
+    border-radius: 50%;
+    animation: loaderSpin 0.8s linear infinite;
+    vertical-align: middle;
+}
+
+.loading .loader { display: block; margin: 0 auto 14px; }
+
+/* 分页 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 6px 0 2px;
+    position: relative;
+}
+
+/* 分页滑动指示器（.pagination-indicator）已按需求移除：
+   不再有跟着鼠标滑动的红色胶囊，分页只保留三段文字。 */
+
+.pagination-btn {
+    padding: 6px 20px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.35s;
+    position: relative;
+    z-index: 1;
+}
+
+body:not(.no-motion) .pagination-btn:hover { color: #fff; }
+.pagination-btn:disabled { cursor: not-allowed; opacity: 0.35; }
+
+.pagination-info {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    min-width: 110px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* ==========================================================================
+   五、弹窗（照抄前台 .modal-mask / .modal-container）
+   ========================================================================== */
+.modal-mask {
+    position: fixed;
+    inset: 0;                       /* 全屏，登录界面因此天然居中 */
+    display: flex;                  /* 常驻显示，可见性交给 visibility 控制 */
+    justify-content: center;
+    align-items: center;
+    z-index: 11000;
+
+    background-color: rgba(0, 0, 0, 0);     /* 前台原值 */
+    backdrop-filter: blur(0px);              /* 前台原值 */
+    -webkit-backdrop-filter: blur(0px);
+    transition: background-color var(--mask-fade) ease-out,
+                backdrop-filter var(--mask-fade) ease-out,
+                -webkit-backdrop-filter var(--mask-fade) ease-out;
+    will-change: background-color, backdrop-filter;
+
+    /* 用 visibility 而不是 display 切换：
+       切换 display 时 backdrop-filter 会直接跳到终值，出现"闪一下"的观感；
+       visibility 在过渡期间保持可见，淡入淡出才是连续的。 */
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* 与前台生效的那条 .modal-mask.show 完全一致（含 saturate 的"发亮"效果） */
+.modal-mask.show {
+    visibility: visible;
+    pointer-events: auto;
+    background-color: var(--mask-bg);
+    backdrop-filter: blur(var(--mask-blur)) saturate(var(--mask-saturate));
+    -webkit-backdrop-filter: blur(var(--mask-blur)) saturate(var(--mask-saturate));
+}
+
+/* 登录卡片：用前台 #loginModal .modal-container 的值（玻璃更强、投影更深）
+   注意：前台**没有**为登录弹窗单独改遮罩，所以这里也不覆盖 .modal-mask.show */
+#loginGate .modal-container {
+    background: var(--card-bg-strong);
+    backdrop-filter: blur(var(--card-blur-strong)) saturate(var(--card-saturate-strong));
+    -webkit-backdrop-filter: blur(var(--card-blur-strong)) saturate(var(--card-saturate-strong));
+    border: 1px solid var(--card-border-strong);
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+        0 2px 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+/* 登录卡片入场（页面刚打开时，.show 已经在 HTML 上，用 animation 而不是 transition） */
+#loginGate.show .modal-container {
+    animation: loginCardIn 0.55s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@keyframes loginCardIn {
+    from { opacity: 0; transform: translateY(26px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-container {
+    width: 460px;
+    max-width: calc(100% - 40px);
+    max-height: 84vh;
+    overflow-y: auto;
+    /* 以下全部取自前台 .modal-container */
+    background: var(--card-bg);
+    backdrop-filter: blur(var(--card-blur)) saturate(var(--card-saturate));
+    -webkit-backdrop-filter: blur(var(--card-blur)) saturate(var(--card-saturate));
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-modal);
+    padding: 26px 28px;
+    position: relative;
+    z-index: 11001;
+    opacity: 0;
+    transform: translateY(20px) translateZ(0);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+        0 1px 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+.modal-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-modal);
+    /* 前台原值：rgba(255,255,255,0.08) 0% -> transparent 60% */
+    background: radial-gradient(ellipse at 50% 0%,
+                rgba(255, 255, 255, var(--card-glow)) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.modal-container > :not(.close-btn) { position: relative; z-index: 1; }
+
+.modal-mask.show .modal-container { opacity: 1; transform: scale(1) translateY(0) translateZ(0); }
+
+/* ==========================================================================
+   表单弹窗（编辑/新增）：加宽 + 双列字段 + 头部/底部固定、中间滚动
+   ========================================================================== */
+.modal-container.wide { width: 900px; }
+
+.modal-container.form-modal {
+    width: min(720px, calc(100vw - 56px));
+    max-height: 88vh;
+    padding: 0;                     /* 内边距交给 head / body / foot 各自控制 */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;               /* 让 body 自己滚，头尾不动 */
+}
+
+/* 头部 */
+.modal-container.form-modal .modal-head {
+    padding: 22px 30px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.modal-container.form-modal .modal-title {
+    margin-bottom: 0;
+    text-align: left;
+    padding-right: 40px;            /* 给右上角关闭按钮让位 */
+    font-size: 19px;
+}
+
+/* 可滚动的字段区 */
+.modal-container.form-modal .modal-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.modal-container.form-modal .modal-body {
+    padding: 22px 30px 6px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+.modal-container.form-modal .modal-body::-webkit-scrollbar { width: 5px; }
+.modal-container.form-modal .modal-body::-webkit-scrollbar-track { background: transparent; }
+.modal-container.form-modal .modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+}
+.modal-container.form-modal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* 两列字段网格 */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 22px;
+}
+
+.form-grid .form-item { margin-bottom: 18px; }
+
+/* 占满整行的字段（文件上传、长路径等） */
+.form-grid .form-item.full { grid-column: 1 / -1; }
+
+/* 底部操作栏（固定，不随字段滚动） */
+.modal-container.form-modal .modal-foot {
+    margin-top: 0;
+    padding: 16px 30px 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    justify-content: flex-end;
+}
+
+.modal-container.form-modal .modal-foot .btn { flex: 0 0 auto; min-width: 116px; }
+
+/* 窄屏：回到单列 */
+@media (max-width: 680px) {
+    .modal-container.form-modal { width: calc(100vw - 28px); }
+    .modal-container.form-modal .modal-head { padding: 18px 20px 14px; }
+    .modal-container.form-modal .modal-body { padding: 18px 20px 4px; }
+    .modal-container.form-modal .modal-foot { padding: 14px 20px 18px; }
+    .form-grid { grid-template-columns: 1fr; gap: 0; }
+    .form-grid .form-item.full { grid-column: auto; }
+}
+
+.close-btn {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.25s, transform 0.25s;
+    z-index: 2;
+}
+
+body:not(.no-motion) .close-btn:hover { color: #fff; transform: scale(1.15); }
+body:not(.no-motion) .close-btn:active { transform: scale(0.95); }
+
+.modal-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 表单（照抄前台 .form-item） */
+.form-item { margin-bottom: 15px; }
+
+.form-item label {
+    display: block;
+    margin-bottom: 6px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.form-item label .req { color: var(--c-primary); margin-left: 3px; }
+.form-item .input, .form-item .select { width: 100%; }
+
+.form-item .tip { font-size: 12px; color: rgba(255, 255, 255, 0.4); margin-top: 6px; }
+
+/* 编辑时：图片类附件（封面 / 头像）把当前那张缩略显示出来 */
+.current-file {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+}
+.current-thumb {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.05);
+}
+.current-file span { word-break: break-all; line-height: 1.5; }
+
+.form-item input[type="file"] {
+    width: 100%;
+    padding: 9px 10px;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-input);
+    color: #fff;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.form-item input[type="file"]::file-selector-button {
+    padding: 6px 14px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    margin-right: 10px;
+    transition: all 0.25s;
+}
+
+body:not(.no-motion) .form-item input[type="file"]::file-selector-button:hover { background: rgba(255, 255, 255, 0.15); }
+
+.form-error {
+    color: #ff8a8c;
+    font-size: 13px;
+    min-height: 20px;
+    text-align: center;
+    margin-top: 4px;
+}
+
+.modal-foot {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-foot .btn { flex: 1; }
+
+/* ==========================================================================
+   六、榜单 / 热门 配置
+   ========================================================================== */
+.chart-grid {
+    display: grid;
+    /* 固定每行 3 个。
+       原来是 repeat(auto-fill, minmax(300px, 1fr)) —— 列数跟着容器宽度自动变，
+       宽屏上会排成 4 个甚至 5 个，榜单块宽度不一致、看着散。 */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+/* 窄屏退成 2 列 / 1 列，免得每个格子被挤得放不下下拉框的文字 */
+@media (max-width: 900px) {
+    .chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 600px) {
+    .chart-grid { grid-template-columns: 1fr; }
+}
+
+/* 榜单格子：加一层深色底，和外面的 .panel 拉开层次。
+   原来两层都是"很薄的白玻璃"（panel 0.05 / block 0.035），叠在一起就糊成一片、
+   看不出谁嵌在谁里面。现在格子比面板更暗一档，边界就出来了。 */
+.chart-block {
+    padding: 16px;
+    border-radius: 14px;
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+.chart-block h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #fff;
+}
+
+/* 榜单序号：原先是红底圆圈（0.3 透明度的主题红 + 红边框），
+   榜单页有 5 个、热门页有 12 个，一屏全是红点，和正文抢注意力。
+   现在改成一枚安静的玻璃小圆 —— 只负责标序号，不做装饰。
+   这样整页唯一的红色就只剩「保存配置」那个主按钮，主次反而更清楚。 */
+.chart-block h4 .rank-no {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;                                  /* 固定宽度，长标题下不会被压扁 */
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset;   /* 一点内高光，显得有厚度 */
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;              /* 数字等宽：1 和 10 都居中得一样 */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── 首页热门的紧凑块 ──────────────────────────────────────────────
+   每个位置只有一个下拉框，所以把「序号 + 下拉框」排成一行。
+   否则表头里只剩一个 24px 的小圆、下面还留着 14px 空档，
+   每个卡片顶部都是一片空地，12 个堆在一起显得很散。 */
+.chart-block.compact {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+}
+
+.chart-block.compact h4 { margin-bottom: 0; }
+
+.chart-block.compact .select {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+}
+
+/* 前三位是首页轮播里最先看到的，用红色点缀一下做视觉重点
+   （一行 3 个，所以 :nth-child(-n+3) 正好是第一排） */
+.chart-block.compact:nth-child(-n + 3) h4 .rank-no {
+    background: rgba(228, 57, 60, 0.22);
+    border-color: rgba(228, 57, 60, 0.5);
+    color: #ffaaaa;
+}
+
+.chart-block .row { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.chart-block .row .pos { width: 20px; flex: 0 0 20px; font-size: 12px; color: rgba(255, 255, 255, 0.45); text-align: center; }
+.chart-block .row .select { flex: 1; min-width: 0; }
+
+/* ==========================================================================
+   七、概览卡片 / 图表
+   ========================================================================== */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 18px;
+}
+
+/* 概览卡片 —— 与 .panel / 前台 .settings-card 同一套参数 */
+.stat-card {
+    padding: 18px 20px;
+    border-radius: var(--radius-card);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(36px) saturate(180%);
+    -webkit-backdrop-filter: blur(36px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35),
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+                0 1px 0 rgba(255, 255, 255, 0.08) inset;
+}
+
+body:not(.no-motion) .stat-card:hover {
+    border-color: rgba(var(--c-primary-rgb), 0.5);
+    transform: translateY(-4px);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45), 0 0 26px rgba(var(--c-primary-rgb), 0.12);
+}
+
+.stat-card i { float: right; font-size: 22px; color: var(--c-primary); opacity: 0.6; }
+.stat-card .label { font-size: 13px; color: var(--c-text-dim); margin-bottom: 12px; }
+.stat-card .value { font-size: 28px; font-weight: 700; color: #fff; }
+.stat-card .value small { font-size: 12px; font-weight: 400; color: var(--c-text-dim); margin-left: 5px; }
+
+.chart-box { width: 100%; height: 300px; }
+
+/* ── 数据统计的行列表 ─────────────────────────────────────────────
+   对齐前台「个人设置 → 我的音乐」里的 .card-item：
+   图标 + 名称 + 数值，每行一条极细底线，最后一行不留线。
+   （原来这一块是两个 ECharts 柱状图，按需求换成列表。） */
+.stat-list { display: flex; flex-direction: column; }
+
+.stat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.stat-row:last-child { border-bottom: none; }
+
+.stat-row-icon {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12.5px;
+}
+
+.stat-row-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.85);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.stat-row-value {
+    flex: 0 0 auto;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.stat-row-value small {
+    margin-left: 3px;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--c-text-dim);
+}
+
+/* ==========================================================================
+   八、（原「登录提示」样式已随登录门一起移除）
+   ========================================================================== */
+
+.input.textarea {
+    resize: vertical;
+    min-height: 110px;
+    line-height: 1.6;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 12.5px;
+}
+
+/* ==========================================================================
+   九、提示条
+   ========================================================================== */
+#toasts {
+    position: fixed;
+    top: 46%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 13000;
+    pointer-events: none;
+}
+
+.toast {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+    transition: opacity .28s ease, transform .28s ease;
+    background: rgba(12, 10, 11, 0.78);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    color: #fff;
+    padding: 15px 34px;
+    border-radius: 999px;
+    font-size: 16px;
+    letter-spacing: .5px;
+    white-space: nowrap;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.toast.err { color: #ffb1b1; }
+
+/* ==========================================================================
+   十、响应式
+   ========================================================================== */
+@media (max-width: 1400px) {
+    .content { padding: 26px 24px 60px; }
+}
+
+/* 窄屏：侧栏改为顶部横向滚动条 */
+@media (max-width: 1024px) {
+    .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        align-items: center;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        flex-wrap: wrap;
+    }
+    .brand { border-bottom: none; padding: 14px 16px; font-size: 17px; }
+    .brand small { display: none; }
+    .side-nav {
+        display: flex;
+        gap: 4px;
+        padding: 8px 12px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        flex: 1 1 100%;
+        order: 3;
+    }
+    .side-indicator { display: none; }
+    .side-item { margin-bottom: 0; padding: 9px 14px; font-size: 14px; }
+    body:not(.no-motion) .side-item:hover { transform: none; }
+    .side-foot {
+        display: flex;
+        gap: 8px;
+        padding: 10px 12px;
+        border-top: none;
+        align-items: center;
+        margin-left: auto;
+    }
+    .who { display: none; }
+    .side-btn { width: auto; margin-bottom: 0; padding: 0 14px; height: 34px; font-size: 12.5px; }
+    body:not(.no-motion) .side-btn:hover { transform: none; }
+    .main { margin-left: 0; }
+}
+
+/* ==========================================================================
+   关闭动效（后台不要动画）
+   --------------------------------------------------------------------------
+   ★ 一个开关控制全部：admin.html 里 <body> 上的 no-motion 类名。
+     想恢复动画 —— 把 no-motion 去掉即可，上面所有动画定义都还在。
+
+   原理：transition / animation 只负责"过渡过程"，元素的最终状态始终由 CSS
+   规则决定。所以关掉它们不会让任何元素停在错误状态。
+   （这也是当初把 .reveal 写成 animation 而不是 transition 的好处 ——
+     若照前台那种写法 .reveal { opacity: 0 }，关掉过渡会让内容永久不可见。）
+   ========================================================================== */
+body.no-motion,
+body.no-motion *,
+body.no-motion *::before,
+body.no-motion *::after {
+    animation: none !important;
+    transition: none !important;
+    will-change: auto !important;
+    scroll-behavior: auto !important;
+}
+
+/* 触碰反馈统一由上面的 body:not(.no-motion) 前缀控制，
+   不再需要在这里逐个覆盖 transform。 */
+
+/* ── 唯一保留的例外：状态指示器 ──────────────────────────────
+   转圈是"正在加载"的信号，停了会让人以为卡死。
+   想连它一起停掉：把下面这段删掉即可。 */
+body.no-motion .loader,
+body.no-motion .fa-spin,
+body.no-motion .fa-spinner {
+    animation: loaderSpin 0.8s linear infinite !important;
+}
+
+/* ==========================================================================
+   十一、下拉框 / 输入框的玻璃拟态加强
+   --------------------------------------------------------------------------
+   【先说清楚能做到哪一步】
+   ✓ 能做：控件本身的背景 / 描边 / 模糊 / 圆角 / 内高光 / 外阴影；
+           展开列表里每个选项的底色和文字色。
+   ✗ 做不到：展开列表「整体的毛玻璃」—— 原生 <select> 的弹出层由操作系统
+           绘制（Windows 上是系统菜单），CSS 的 backdrop-filter 对它无效。
+           要让弹出的列表本身也磨砂，只能把 <select> 换成自己用 div 画的
+           下拉组件，那要连带实现键盘上下键、Esc 关闭、点击外部关闭、
+           滚动定位等一整套逻辑（前台那套下拉就是这么干的）。
+   所以这里退一步：把展开列表的配色做到和后台主题完全一致（深色 + 主题红
+   高亮），不再是系统默认的白底列表，观感上先统一起来。
+   ========================================================================== */
+
+.input, .select {
+    background-color: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+                0 1px 0 rgba(255, 255, 255, 0.08) inset;
+}
+
+/* 聚焦：主题红描边 + 一圈柔和外发光 */
+.input:focus, .select:focus {
+    background-color: rgba(255, 255, 255, 0.11);
+    border-color: rgba(228, 57, 60, 0.55);
+    box-shadow: 0 0 0 3px rgba(228, 57, 60, 0.16),
+                0 4px 20px rgba(0, 0, 0, 0.24);
+}
+
+/* 展开后的选项列表：原生弹出层只接受纯色（加不了模糊），
+   所以给它一个与后台背景同色系的深色底，选中项用主题红。 */
+.select option,
+select option {
+    background-color: #1b191d;
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.select option:checked,
+select option:checked {
+    background-color: #8f2427;
+    color: #fff;
+}
+
+.select optgroup,
+select optgroup {
+    background-color: #131115;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: normal;
+}
+
+/* 禁用态 */
+.input:disabled, .select:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   十二、滚动条
+   --------------------------------------------------------------------------
+   分两种，能做的程度不一样：
+
+   ① 页面自己的滚动区域（主内容区 / 侧栏导航 / 表格横向滚动）
+      —— 完全可控，下面统一成"细的深色玻璃条"。
+
+   ② 原生 <select> 展开后那个弹出层的滚动条
+      —— 那个弹出层是浏览器【单独绘制的一个内部文档】，不在本页面的 DOM 里，
+         所以 `::-webkit-scrollbar` 能不能生效看浏览器版本，不能保证
+         （Chrome 各版本行为不一致，实测以你的浏览器为准）。
+         真要完全掌控它，只能换成自己用 div 画的下拉组件。
+   ========================================================================== */
+
+/* —— ① 页面自己的滚动区域 —— */
+#content,
+.side-nav,
+.sidebar,
+.table-wrap {
+    scrollbar-width: thin;                                        /* Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;       /* Firefox */
+}
+
+#content::-webkit-scrollbar,
+.side-nav::-webkit-scrollbar,
+.sidebar::-webkit-scrollbar,
+.table-wrap::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+}
+
+#content::-webkit-scrollbar-track,
+.side-nav::-webkit-scrollbar-track,
+.sidebar::-webkit-scrollbar-track,
+.table-wrap::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#content::-webkit-scrollbar-thumb,
+.side-nav::-webkit-scrollbar-thumb,
+.sidebar::-webkit-scrollbar-thumb,
+.table-wrap::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    border: 2px solid transparent;      /* 用透明边框把滑块"缩细"，比直接调宽度更圆润 */
+    background-clip: content-box;
+}
+
+#content::-webkit-scrollbar-thumb:hover,
+.side-nav::-webkit-scrollbar-thumb:hover,
+.sidebar::-webkit-scrollbar-thumb:hover,
+.table-wrap::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+    background-clip: content-box;
+}
+
+#content::-webkit-scrollbar-corner,
+.side-nav::-webkit-scrollbar-corner,
+.sidebar::-webkit-scrollbar-corner,
+.table-wrap::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* —— ② <select> 弹出层的滚动条（尽力而为，见上面说明）—— */
+.select::-webkit-scrollbar,
+select::-webkit-scrollbar {
+    width: 9px;
+}
+
+.select::-webkit-scrollbar-track,
+select::-webkit-scrollbar-track {
+    background: #1b191d;
+}
+
+.select::-webkit-scrollbar-thumb,
+select::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+}
+
+.select::-webkit-scrollbar-thumb:hover,
+select::-webkit-scrollbar-thumb:hover {
+    background: rgba(228, 57, 60, 0.6);
+}
+
+/* ==========================================================================
+   十三、自画的选歌下拉（带搜索框）
+   --------------------------------------------------------------------------
+   原生 <select> 展开层的三件事都控制不了：高度、滚动条样式、毛玻璃。
+   而选歌这个下拉最长要塞 69 首，一展开就铺满半屏、滚动条还是系统白条。
+   所以换成自己画的：高度固定约 8 行、滚动条是页面自己的（可做细做深色）、
+   菜单真毛玻璃（backdrop-filter 在这里是生效的）、再带个搜索框。
+   每个下拉里仍留一个隐藏的原生 <select>（.pick-store）只负责存值，
+   它照样带 class="select" 和 data-pos，所以保存逻辑不用改。
+   ========================================================================== */
+
+.pick {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.pick-store { display: none !important; }
+
+/* 收起来的按钮：同样加一层深色底，否则和它所在的卡片糊成一片、看不出边界 */
+.pick-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    height: 40px;
+    padding: 0 14px;
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+                0 1px 0 rgba(255, 255, 255, 0.1) inset;
+    color: #fff;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.pick-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pick-caret {
+    flex: 0 0 auto;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+/* no-motion 下不做过渡，展开时箭头直接翻过去 */
+body:not(.no-motion) .pick-caret { transition: transform 0.2s ease; }
+.pick.open .pick-caret { transform: rotate(180deg); }
+.pick.open .pick-btn { border-color: rgba(228, 57, 60, 0.5); }
+
+/* 展开的菜单
+   ── 为什么不能只用 rgba(255,255,255,0.09)
+      卡片那样薄的白色玻璃放在"页面背景"上是好看的，但下拉菜单是【浮层】，
+      它背后压着的是别的卡片和文字 —— 0.09 的白挡不住，内容直接透出来，
+      看着就像两层叠在一起分不清。
+      所以这里改用「深色不透明底 + 白色高光层」：
+        background-color  → 深色，负责真正遮住下面
+        background-image  → 白色渐变，负责保留玻璃的光泽感
+      既挡住了内容，又还在白玻璃这个视觉体系里。 */
+.pick-menu {
+    position: absolute;
+    z-index: 60;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    display: none;
+    backdrop-filter: blur(48px) saturate(190%);
+    -webkit-backdrop-filter: blur(48px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55),
+                0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+                0 1px 0 rgba(255, 255, 255, 0.1) inset;
+    overflow: hidden;
+}
+
+.pick.open .pick-menu { display: block; }
+
+/* 空间不够时往上展开（initPickers 会判断并加 .up） */
+.pick.open.up .pick-menu { top: auto; bottom: calc(100% + 6px); }
+
+/* ── 修「下拉被下面的模块盖住」──────────────────────────────────────
+   .panel 和 .chart-block 都带 backdrop-filter，而 backdrop-filter 会让元素
+   形成一个【独立的层叠上下文】—— 下拉菜单在自己卡片里 z-index 再高也出不去，
+   于是后面那张兄弟卡片就画在它上面了。
+   解法：哪个卡片的下拉正展开着，就把那张卡片整体抬到最上层。 */
+.chart-block:has(.pick.open) {
+    position: relative;
+    z-index: 130;
+}
+
+/* 兜底：这些容器都不该裁剪内容，否则下拉会被切掉一角 */
+.panel,
+.chart-grid,
+.chart-block,
+.chart-block .row {
+    overflow: visible;
+}
+
+.pick-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
+}
+
+.pick-search {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    outline: none;
+    color: #fff;
+    font-size: 13.5px;
+}
+
+.pick-search::placeholder { color: rgba(255, 255, 255, 0.32); }
+
+/* 选项列表：约 8 行，超出就滚（不再是铺满半屏的系统列表） */
+.pick-list {
+    max-height: 236px;
+    overflow-y: auto;
+    padding: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+
+.pick-list::-webkit-scrollbar { width: 8px; }
+
+.pick-list::-webkit-scrollbar-track { background: transparent; }
+
+.pick-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+.pick-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(228, 57, 60, 0.6);
+    background-clip: content-box;
+}
+
+.pick-opt {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13.5px;
+    text-align: left;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body:not(.no-motion) .pick-opt:hover { background: rgba(255, 255, 255, 0.09); }
+
+.pick-opt.on {
+    background: rgba(228, 57, 60, 0.24);
+    color: #fff;
+}
+
+.pick-empty {
+    padding: 16px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 13px;
+}
+
+/* ==========================================================================
+   十四、下拉的两种状态，用两种玻璃
+   --------------------------------------------------------------------------
+   · 收起来的按钮 → 「薄白玻璃」，和其它玻璃面板保持一致。
+     它就贴在自己所在的卡片上，和背景是一体的，弄深了反而突兀。
+
+   · 展开的菜单 → 「深色磨砂」。因为它是浮层，底下压着的是别的卡片和文字，
+     薄白玻璃挡不住，会看着两层重叠。深色底负责遮住，白色高光层保留光泽，
+     56px 模糊把后面的内容糊成柔光。
+   ========================================================================== */
+
+.pick-btn {
+    background-color: rgba(255, 255, 255, 0.08);
+    background-image: none;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+                0 1px 0 rgba(255, 255, 255, 0.08) inset;
+}
+
+.pick-menu {
+    background-color: rgba(20, 18, 22, 0.9);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(56px) saturate(190%);
+    -webkit-backdrop-filter: blur(56px) saturate(190%);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55),
+                0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+                0 1px 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+/* 榜单格子：比 .panel 的 0.05 亮一档，嵌套层次就出来了，不用靠深色 */
+.chart-block {
+    background-color: rgba(255, 255, 255, 0.075);
+    background-image: none;
+    backdrop-filter: blur(38px) saturate(180%);
+    -webkit-backdrop-filter: blur(38px) saturate(180%);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22),
+                0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+}
+
+/* 选中项：深色菜单上要亮一点才跳得出来 */
+.pick-opt.on { background: rgba(228, 57, 60, 0.3); }
+
+/* ==========================================================================
+   十五、字体优化
+   ========================================================================== */
+
+/* 更完整的中文字体栈：优先用各平台最清晰的那款，逐级回退，
+   最后落到 system-ui / sans-serif，保证任何机器上都不会掉到衬线体。
+   （原来只有一个 var(--font)，栈太短，Windows 上容易退到难看的默认字体） */
+:root {
+    --font: "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Source Han Sans SC",
+            "Noto Sans SC", "Microsoft YaHei UI", "微软雅黑", "Microsoft YaHei",
+            system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+            Arial, sans-serif;
+    --font-num: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Mono",
+                Consolas, monospace;
+}
+
+body {
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* 数字一律等宽（tnum）：表格里的序号 / 价格 / 统计数字上下对齐才不会"抖" */
+td, th,
+.col-index,
+.rank-no,
+.chart-block .row .pos,
+.stat-card .value,
+.badge {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+}
+
+/* 标题不加字距、字重统一，看着更有分量 */
+.page-title h3,
+.panel-head h3,
+.modal-title,
+.chart-block h4 {
+    letter-spacing: 0;
+    font-weight: 600;
+}
+
+/* 表格正文：略收小一号、行高放松，长表更好扫 */
+.songs-table td,
+.songs-table th { font-size: 13.5px; }
+
+.songs-table td { line-height: 1.55; }
+
+/* 表格里"数值"性质的内容统一用等宽数字字体，和文字拉开区分 */
+.col-index { font-family: var(--font-num); }
+
+/* ==========================================================================
+   十六、表单下拉的自画升级（enhanceFormSelect）
+   --------------------------------------------------------------------------
+   复用十三节 .pick 的视觉（玻璃菜单 / 搜索 / 悬停高亮），但菜单挂在
+   <body> 上、position:fixed，由 JS 计算坐标：
+     · 表单弹窗的 .modal-body 是滚动容器 —— 菜单放里面会被裁掉；
+     · .modal-container 带 transform —— 会把 fixed 的包含块劫持到弹窗上，
+       视口坐标全部错位。挂 body 才能拿到真正的视口坐标。
+   ========================================================================== */
+.pick.pick-fixed .pick-btn { height: 42px; border-radius: var(--radius-input, 10px); }
+
+.pick-menu.body-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: auto;      /* 基础样式里有 right:0，不覆盖会把菜单从左边缘一路拉到视口右边 */
+    display: none;
+    flex-direction: column;
+    /* 关键：.modal-mask 是 z-index:11000，菜单挂在 body 上若给低了，会被遮罩
+       整块盖住 —— 也就是「点开什么都不出现」。必须高过弹窗这一档。 */
+    z-index: 14000;
+    max-width: calc(100vw - 24px);
+}
+
+.pick-menu.body-menu.show { display: flex; }
+
+/* 菜单高度被视口限制时，让列表自己滚（搜索框保持固定在顶部） */
+.pick-menu.body-menu .pick-list { flex: 1 1 auto; min-height: 0; }
+
+body:not(.no-motion) .pick-menu.body-menu.show {
+    animation: bodyMenuIn 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes bodyMenuIn {
+    from { opacity: 0; transform: translateY(-4px) scale(0.985); }
+    to   { opacity: 1; transform: none; }
+}

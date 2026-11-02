@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1",
-    "deploy": "npm run build && gh-pages -d dist"
+    "deploy": "npm run build && PATH=\"/c/Program Files/Git/mingw64/bin:$PATH\" gh-pages -d dist"
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^5.2.3",

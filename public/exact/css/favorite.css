@@ -168,17 +168,6 @@ body {
 .refresh-btn.loading i { transform: rotate(360deg); }
 
 /* 提示框 */
-.toast {
-    position: fixed; top: 50%; left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
-    background-color: rgba(0, 0, 0, 0.75); color: white;
-    padding: 12px 24px; border-radius: 8px; font-size: 15px;
-    z-index: 2000; opacity: 0;
-    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;
-}
-.toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-
 /* 延迟类 */
 .delay-50 { transition-delay: 20ms !important; }
 .delay-100 { transition-delay: 40ms !important; }

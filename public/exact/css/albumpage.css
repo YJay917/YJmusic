@@ -1,0 +1,148 @@
+/* 专辑详情页样式 —— 与歌手详情页（artistpage.css）同一套界面，仅两处差异：
+   1) 封面为圆角方形（唱片封面），不再是圆形头像；
+   2) 多一层「未购买遮罩」.lock-mask，购买后隐藏。 */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft Yahei", "PingFang SC", sans-serif; }
+body { background-color: transparent; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+body.modal-open { overflow: hidden !important; }
+
+/* ========== 头部信息区 ========== */
+.modal-header { position: relative; padding: 0; overflow: hidden; }
+.header-bg { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(228,57,60,0.15) 0%, rgba(30,30,30,0.6) 50%, rgba(20,20,20,0.8) 100%); pointer-events: none; }
+.header-content { position: relative; display: flex; align-items: center; gap: 16px; padding: 30px 24px 30px; }
+
+/* 专辑封面：圆角方形 */
+.album-avatar { width: 110px; height: 110px; border-radius: 16px; object-fit: cover; border: 2px solid rgba(255,255,255,0.25); box-shadow: 0 4px 16px rgba(0,0,0,0.35); flex-shrink: 0; transition: transform 0.3s ease; }
+.album-avatar:hover { transform: scale(1.04); }
+
+.artist-info { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; padding-left: 30px; }
+.artist-name-row { display: flex; align-items: center; gap: 12px; }
+.artist-name-row h1 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+
+.stats-row { display: flex; align-items: center; background: rgba(255,255,255,0.06); border-radius: 10px; padding: 14px 4px; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px); max-width: 520px; }
+.stat-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 0 8px; }
+.stat-value { font-size: 17px; font-weight: 700; color: #fff; }
+.stat-label { font-size: 10px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 2px; }
+.stat-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.12); flex-shrink: 0; }
+
+/* ========== 歌曲区 ========== */
+.songs-section { padding: 8px 20px 12px; position: relative; display: flex; flex-direction: column; flex: 1; min-height: 0; transition: filter 0.45s ease; }
+
+/* 未购买时：内容自身模糊 + 压暗 + 去饱和 —— 白字不再糊成亮雾；
+   pointer-events 一并禁掉，防止隔着遮罩误触到下面的行 */
+.songs-section.locked { filter: blur(7px) brightness(0.45) saturate(0.75); pointer-events: none; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.section-header-left { display: flex; align-items: center; gap: 12px; }
+.section-header h2 { font-size: 16px; color: #fff; font-weight: 600; margin: 8px 0; }
+
+.table-wrap { position: relative; flex: 1; min-height: 0; }
+.table-indicator { position: absolute; left: 2px; top: 0; width: calc(100% - 4px); height: 0; border-radius: 0; background: rgba(228,57,60,0.12); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,100,100,0.4); box-shadow: none; transition: top 0.55s cubic-bezier(0.33,0,0.67,1), height 0.55s cubic-bezier(0.33,0,0.67,1); pointer-events: none; z-index: 0; opacity: 0; }
+
+.songs-table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; position: relative; z-index: 1; }
+.songs-table th { padding: 14px 4px; font-size: 15px; text-align: left; color: rgba(255,255,255,0.55); font-weight: normal; border-bottom: 1px solid rgba(255,255,255,0.1); vertical-align: middle; }
+.songs-table th:nth-child(1) { width: 32px; }
+.songs-table th:nth-child(2) { width: 300px; text-align: left; }
+.songs-table th:nth-child(3) { width: 28px; }
+.songs-table th:nth-child(4) { width: 150px; }
+.songs-table th:nth-child(5) { width: 50px; }
+.songs-table td { padding: 14px 4px; font-size: 13px; text-align: left; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+.col-heart { width: 32px; text-align: center !important; padding: 0 !important; }
+.col-play { width: 28px; text-align: center !important; padding: 0 !important; }
+.col-singer { width: 150px; }
+.singer-text { color: rgba(255,255,255,0.55); font-size: 12px; }
+.col-duration { color: rgba(255,255,255,0.55); font-size: 12px; padding-left: 30px; }
+.songs-table tr:last-child td { border-bottom: none; }
+
+.song-cell { display: flex; align-items: center; gap: 8px; }
+
+/* 播放按钮 */
+.play-btn { width: 27px; height: 27px; border-radius: 0; background: transparent; color: transparent; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; border: none; outline: none; position: relative; left: -15px; transition: color 0.2s; }
+.song-row:hover .play-btn { color: rgba(255,255,255,0.5); }
+.play-btn:hover { color: #e4393c !important; }
+
+/* 歌曲行 */
+.song-row { cursor: pointer; transition: background-color 0.15s, box-shadow 0.15s; border-radius: 0; margin: 2px 0; border: 1px solid transparent; }
+.song-row:hover { background-color: rgba(255,255,255,0.08); box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1); }
+.heart-icon { width: 28px; height: 28px; border-radius: 50%; background: transparent; color: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: transform 0.3s, color 0.3s; border: none; outline: none; }
+.heart-icon:hover { color: #e4393c; transform: scale(1.15); }
+.heart-icon:active { transform: scale(0.9); }
+.heart-icon.active { color: #e4393c; }
+
+.song-name { color: #fff; font-weight: 500; }
+.quality-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; height: 18px; line-height: 14px; flex-shrink: 0; display: inline-flex; align-items: center; border: 1px solid #d1b3ff; font-weight: 500; background-color: #e8d5ff; color: #800080; }
+
+.pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: auto; padding: 8px 0 4px; position: relative; }
+.pagination-indicator { position: absolute; top: 8px; left: 0; height: calc(100% - 12px); border-radius: 20px; background: rgba(228,57,60,0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,100,100,0.4); box-shadow: 0 2px 16px rgba(228,57,60,0.3); transition: left 0.55s cubic-bezier(0.33,0,0.67,1), width 0.55s cubic-bezier(0.33,0,0.67,1); pointer-events: none; z-index: 0; }
+.pagination-btn { padding: 6px 20px; border-radius: 20px; border: 1px solid transparent; background: transparent; color: rgba(255,255,255,0.65); cursor: pointer; font-size: 15px; font-weight: 500; transition: color 0.35s; position: relative; z-index: 1; }
+.pagination-btn:hover { color: #fff; }
+.pagination-btn.active { color: #fff; font-weight: 700; }
+.pagination-btn:disabled { cursor: not-allowed; }
+.pagination-btn:disabled:not(.active) { opacity: 0.3; color: rgba(255,255,255,0.3); }
+.pagination-info { color: rgba(255,255,255,0.85); font-size: 14px; min-width: 100px; text-align: center; position: relative; z-index: 1; }
+
+/* ========== 未购买遮罩 ==========
+   后面内容的「模糊 + 变暗」主要由 .songs-section.locked 自己的 filter 完成
+   （backdrop-filter 模糊白字会糊成一团亮雾），遮罩只负责一层薄薄的暗色，
+   这样后面内容是暗的、不发亮，购买卡片反而更突出。 */
+.lock-mask { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: rgba(8, 8, 10, 0.38); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+.lock-box { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 30px 40px; }
+.lock-cover-wrap { position: relative; width: 130px; height: 130px; margin-bottom: 18px; }
+.lock-cover-wrap img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.45); filter: blur(3px) saturate(0.8); }
+.lock-icon { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 34px; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }
+.lock-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.lock-desc { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 14px; }
+.lock-price { font-size: 26px; font-weight: 700; color: #ff6b6b; margin-bottom: 18px; text-shadow: 0 0 16px rgba(255, 107, 107, 0.35); }
+.lock-buy-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 34px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.25); background: linear-gradient(135deg, rgba(216,46,46,0.85), rgba(160,20,20,0.85)); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease; }
+.lock-buy-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(216,46,46,0.4); }
+.lock-buy-btn:active { transform: scale(0.96); }
+.lock-buy-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+.lock-hint { margin-top: 12px; font-size: 12px; color: rgba(255,255,255,0.4); min-height: 16px; }
+
+/* ========== 购买确认弹窗 ========== */
+/* 覆在未购买遮罩(.lock-mask z=50)之上，点「立即购买」后弹出 */
+.buy-modal-mask { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(6, 6, 8, 0.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.25s ease; }
+.buy-modal-mask.show { opacity: 1; }
+
+.buy-modal { position: relative; width: 300px; max-width: calc(100vw - 48px); padding: 22px 24px 18px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.18); background-color: rgba(24, 22, 26, 0.92); background-image: linear-gradient(rgba(255,255,255,0.09), rgba(255,255,255,0.03)); backdrop-filter: blur(48px) saturate(190%); -webkit-backdrop-filter: blur(48px) saturate(190%); box-shadow: 0 18px 50px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06) inset, 0 1px 0 rgba(255,255,255,0.1) inset; transform: translateY(10px) scale(0.96); transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.buy-modal-mask.show .buy-modal { transform: none; }
+
+.buy-modal-close { position: absolute; top: 10px; right: 14px; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); font-size: 16px; cursor: pointer; transition: background 0.2s, color 0.2s; }
+.buy-modal-close:hover { background: rgba(255,255,255,0.16); color: #fff; }
+
+.buy-modal-title { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 16px; }
+.buy-modal-title i { color: #e4393c; }
+
+/* 专辑信息行 */
+.buy-album-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 14px; }
+.buy-album-row img { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
+.buy-album-meta { min-width: 0; }
+.buy-album-name { font-size: 14.5px; font-weight: 600; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.buy-album-singer { margin-top: 3px; font-size: 12px; color: rgba(255,255,255,0.5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* 单价 / 数量行 */
+.buy-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 2px; }
+.buy-row-label { font-size: 13px; color: rgba(255,255,255,0.55); }
+.buy-price { font-size: 15px; font-weight: 700; color: #ff6b6b; font-variant-numeric: tabular-nums; }
+
+.qty-stepper { display: inline-flex; align-items: center; gap: 2px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); overflow: hidden; }
+.qty-btn { width: 30px; height: 30px; border: 0; background: transparent; color: rgba(255,255,255,0.75); font-size: 16px; cursor: pointer; transition: background 0.2s, color 0.2s; }
+.qty-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); color: #fff; }
+.qty-btn:disabled { color: rgba(255,255,255,0.25); cursor: default; }
+.qty-value { min-width: 34px; text-align: center; font-size: 14.5px; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
+
+/* 合计行 */
+.buy-total-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 2px; margin-top: 2px; border-top: 1px dashed rgba(255,255,255,0.14); }
+.buy-total { font-size: 21px; font-weight: 700; color: #ff6b6b; text-shadow: 0 0 14px rgba(255, 107, 107, 0.3); font-variant-numeric: tabular-nums; }
+
+/* 确认按钮：与遮罩上的「立即购买」同一套渐变红 */
+.buy-confirm-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 11px 0; margin-top: 12px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.25); background: linear-gradient(135deg, rgba(216,46,46,0.85), rgba(160,20,20,0.85)); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.buy-confirm-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(216,46,46,0.4); }
+.buy-confirm-btn:active:not(:disabled) { transform: scale(0.97); }
+.buy-confirm-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+
+.buy-error { min-height: 18px; margin-top: 8px; text-align: center; font-size: 12px; color: #ff8a8a; }

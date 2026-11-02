@@ -1,25 +1,8 @@
 // 获取DOM元素
 const playlist = document.getElementById('playlist');
-const toast = document.getElementById('toast');
 const refreshBtn = document.getElementById('refreshBtn');
 
 // 显示提示框函数
-function showToast(message) {
-    // 优先使用父窗口的提示函数，确保提示框在屏幕中心
-    if (window.parent && typeof window.parent.showPlayerToast === 'function') {
-        window.parent.showPlayerToast(message);
-        return;
-    }
-    
-    // 备选方案：使用本地提示框
-    if (!toast) return;
-    toast.textContent = message;
-    toast.classList.add('show');
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 2000);
-}
 
 // 处理刷新逻辑
 if (refreshBtn) {
@@ -159,11 +142,9 @@ function bindHeartEvent(btn) {
             if (isActive) {
                 // 不再立即移除 DOM，只取消激活状态
                 this.classList.remove('active');
-                saveToLocalStorage();
                 showToast('已取消收藏，刷新后将从列表移除');
             } else {
                 this.classList.add('active');
-                saveToLocalStorage();
                 showToast('已收藏该歌曲');
             }
             
@@ -200,9 +181,8 @@ function bindDeleteEvent(btn) {
                 duration: duration
             }, true);
             
-            // 立即移除
+            // 立即移除（云端与缓存由父页面 toggleFavorite 统一回写）
             songItem.remove();
-            saveToLocalStorage();
             // 如果列表空了，显示暂无数据
             if (playlist.querySelectorAll('.playlist-item').length === 0) {
                 playlist.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.4); margin-top: 100px;">暂无收藏歌曲</div>';
@@ -251,53 +231,81 @@ playlist.addEventListener('click', function(e) {
     }
 });
 
-// 修改 loadFromLocalStorage 以支持动画
-function loadFromLocalStorage(noAnimation = false) {
-    const saved = localStorage.getItem('yjay_favorites');
-    
-    if (saved !== null) {
-        const items = JSON.parse(saved);
-        if (items.length === 0) {
-            playlist.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.4); margin-top: 100px;">暂无收藏歌曲</div>';
-            return;
-        }
-        
-        let htmlContent = '';
-        items.forEach((data, index) => {
-            const className = noAnimation ? 'playlist-item active' : `playlist-item reveal delay-${(index % 6) * 50 + 50}`;
-            
-            htmlContent += `
-                <li class="${className}">
-                    <button class="heart-btn active"><i class="fa-solid fa-heart"></i></button>
-                    <div class="song-info">
-                        <div class="song-name-wrapper">
-                            <span class="song-name">${data.title}</span>
-                        </div>
-                        <span class="song-singer">${data.singer}</span>
-                    </div>
-                    <span class="song-duration">${data.duration}</span>
-                    <button class="play-btn" title="播放音乐"><i class="fa-solid fa-play"></i></button>
-                    <button class="delete-btn"><i class="fa-regular fa-trash-can"></i></button>
-                </li>
-            `;
-        });
-        
-        playlist.innerHTML = htmlContent;
-        
-        // 重新绑定事件
-        const itemElements = playlist.querySelectorAll('.playlist-item');
-        itemElements.forEach(item => {
-            if (!noAnimation) {
-                revealObserver.observe(item);
-            }
-            bindHeartEvent(item.querySelector('.heart-btn'));
-            bindDeleteEvent(item.querySelector('.delete-btn'));
-        });
-        updatePlayingStatus();
-    } else {
-        // 如果 localStorage 为空，显示暂无收藏
+// ---- 收藏列表渲染（被缓存/云端两条路径复用）----
+function renderFavoriteList(items, noAnimation) {
+    if (!items.length) {
         playlist.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.4); margin-top: 100px;">暂无收藏歌曲</div>';
+        return;
     }
+    let htmlContent = '';
+    items.forEach((data, index) => {
+        const className = noAnimation ? 'playlist-item active' : `playlist-item reveal delay-${(index % 6) * 50 + 50}`;
+        htmlContent += `
+            <li class="${className}">
+                <button class="heart-btn active"><i class="fa-solid fa-heart"></i></button>
+                <div class="song-info">
+                    <div class="song-name-wrapper">
+                        <span class="song-name">${data.title}</span>
+                    </div>
+                    <span class="song-singer">${data.singer}</span>
+                </div>
+                <span class="song-duration">${data.duration}</span>
+                <button class="play-btn" title="播放音乐"><i class="fa-solid fa-play"></i></button>
+                <button class="delete-btn"><i class="fa-regular fa-trash-can"></i></button>
+            </li>
+        `;
+    });
+    playlist.innerHTML = htmlContent;
+
+    const itemElements = playlist.querySelectorAll('.playlist-item');
+    itemElements.forEach(item => {
+        if (!noAnimation) {
+            revealObserver.observe(item);
+        }
+        bindHeartEvent(item.querySelector('.heart-btn'));
+        bindDeleteEvent(item.querySelector('.delete-btn'));
+    });
+    updatePlayingStatus();
+}
+
+function readFavoritesCache() {
+    try { return JSON.parse(localStorage.getItem('yjay_favorites') || '[]'); }
+    catch (e) { return []; }
+}
+
+/* 加载收藏列表：数据库为唯一数据源，localStorage 仅作缓存。
+   1. 先用缓存立即渲染（打开弹窗零等待）
+   2. 再拉云端最新数据覆盖渲染 —— 换设备/清缓存后收藏自动恢复 */
+async function loadFromLocalStorage(noAnimation = false) {
+    renderFavoriteList(readFavoritesCache(), noAnimation);
+
+    // 云端刷新：优先用父页面统一的 refreshFavoriteCache（含缓存回写）；
+    // 独立打开本页时自己请求接口
+    try {
+        let cloudList = null;
+        if (window.parent && typeof window.parent.refreshFavoriteCache === 'function') {
+            cloudList = await window.parent.refreshFavoriteCache();
+        } else {
+            const account = localStorage.getItem('currentUser');
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const me = users.find(u => u.account === account);
+            if (me && me.id) {
+                const res = await fetch('/api/favorites/' + me.id);
+                const data = res.ok ? await res.json() : null;
+                if (Array.isArray(data)) {
+                    cloudList = data.map(f => ({
+                        title: f.title || '',
+                        singer: f.singer || '',
+                        duration: f.duration || '00:00'
+                    })).filter(f => f.title);
+                    localStorage.setItem('yjay_favorites', JSON.stringify(cloudList));
+                }
+            }
+        }
+        if (Array.isArray(cloudList)) {
+            renderFavoriteList(cloudList, true);
+        }
+    } catch (e) { /* 云端不可用：保留缓存渲染结果 */ }
 }
 
 function addFavoriteFromExternal(data) {
